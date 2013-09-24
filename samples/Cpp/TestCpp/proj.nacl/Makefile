@@ -54,12 +54,23 @@ SOURCES = ../Classes/AccelerometerTest/AccelerometerTest.cpp \
 	../Classes/ExtensionsTest/TableViewTest/TableViewTestScene.cpp \
 	../Classes/ExtensionsTest/TableViewTest/CustomTableViewCell.cpp \
 	../Classes/ExtensionsTest/ExtensionsTest.cpp \
-	../Classes/ExtensionsTest/NotificationCenterTest/NotificationCenterTest.cpp \
+    ../Classes/ExtensionsTest/NotificationCenterTest/NotificationCenterTest.cpp \
+    ../Classes/ExtensionsTest/CocoStudioArmatureTest/ArmatureScene.cpp \
+	../Classes/ExtensionsTest/CocoStudioComponentsTest/ComponentsTestScene.cpp \
+	../Classes/ExtensionsTest/CocoStudioComponentsTest/EnemyController.cpp \
+	../Classes/ExtensionsTest/CocoStudioComponentsTest/GameOverScene.cpp \
+	../Classes/ExtensionsTest/CocoStudioComponentsTest/PlayerController.cpp \
+	../Classes/ExtensionsTest/CocoStudioComponentsTest/ProjectileController.cpp \
+	../Classes/ExtensionsTest/CocoStudioComponentsTest/SceneController.cpp \
+	../Classes/ExtensionsTest/CocoStudioSceneTest/SceneEditorTest.cpp \
+	../Classes/ExtensionsTest/Scale9SpriteTest/Scale9SpriteTest.cpp \
+	../Classes/NewEventDispatcherTest/NewEventDispatcherTest.cpp \
 	../Classes/FileUtilsTest/FileUtilsTest.cpp \
 	../Classes/FontTest/FontTest.cpp \
 	../Classes/IntervalTest/IntervalTest.cpp \
 	../Classes/KeypadTest/KeypadTest.cpp \
 	../Classes/LabelTest/LabelTest.cpp \
+	../Classes/LabelTest/LabelTestNew.cpp \
 	../Classes/LayerTest/LayerTest.cpp \
 	../Classes/MenuTest/MenuTest.cpp \
 	../Classes/MotionStreakTest/MotionStreakTest.cpp \
@@ -82,6 +93,7 @@ SOURCES = ../Classes/AccelerometerTest/AccelerometerTest.cpp \
 	../Classes/TextInputTest/TextInputTest.cpp \
 	../Classes/Texture2dTest/Texture2dTest.cpp \
 	../Classes/TextureCacheTest/TextureCacheTest.cpp \
+	../Classes/TexturePackerEncryptionTest/TextureAtlasEncryptionTest.cpp \
 	../Classes/TileMapTest/TileMapTest.cpp \
 	../Classes/TouchesTest/Ball.cpp \
 	../Classes/TouchesTest/Paddle.cpp \
@@ -90,9 +102,12 @@ SOURCES = ../Classes/AccelerometerTest/AccelerometerTest.cpp \
 	../Classes/UserDefaultTest/UserDefaultTest.cpp \
 	../Classes/ZwoptexTest/ZwoptexTest.cpp \
 	../Classes/SpineTest/SpineTest.cpp \
+	../Classes/DataVisitorTest/DataVisitorTest.cpp \
+	../Classes/ConfigurationTest/ConfigurationTest.cpp \
 	../Classes/controller.cpp \
 	../Classes/testBasic.cpp \
 	../Classes/AppDelegate.cpp \
+	../Classes/BaseTest.cpp \
 	../Classes/VisibleRect.cpp \
 	main.cpp
 
@@ -132,7 +147,7 @@ $(OBJ_DIR)/%.o: ../%.c $(CORE_MAKEFILE_LIST)
 	$(LOG_CC)$(NACL_CC) -MMD $(CCFLAGS) $(INCLUDES) $(DEFINES) -c $< -o $@
 
 $(NMF): $(TARGET)
-	$(NACL_SDK_ROOT)/tools/create_nmf.py -o $@ $(BIN_DIR)/*.nexe --objdump=i686-nacl-objdump -L$(NACL_SDK_ROOT)/toolchain/linux_x86_newlib/x86_64-nacl/lib/ -s $(BIN_DIR)
+	$(NACL_SDK_ROOT)/tools/create_nmf.py -o $@ $(BIN_DIR)/*.nexe $(NMF_FLAGS) -s $(BIN_DIR)
 
 PACKAGE_ROOT = $(OUT_DIR)/package
 
@@ -145,6 +160,7 @@ package: all
 	/bin/cp res/package_index.html $(PACKAGE_ROOT)/index.html
 
 zipfile: package
+	rm -f $(OUT_DIR)/$(APP_NAME).zip
 	cd $(PACKAGE_ROOT) && zip -r ../$(APP_NAME).zip .
 
 run: all

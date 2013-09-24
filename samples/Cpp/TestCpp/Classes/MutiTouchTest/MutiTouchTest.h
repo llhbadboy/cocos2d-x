@@ -3,16 +3,16 @@
 
 #include "../testBasic.h"
 
-class MutiTouchTestLayer : public CCLayer
+class MutiTouchTestLayer : public Layer
 {
 public:
     bool init();
 
-    virtual void registerWithTouchDispatcher(void);
-    virtual void ccTouchesBegan(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent);
-    virtual void ccTouchesMoved(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent);
-    virtual void ccTouchesEnded(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent);
-    virtual void ccTouchesCancelled(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent);
+//    virtual void registerWithTouchDispatcher(void);
+    void onTouchesBegan(const std::vector<Touch*>& touches, cocos2d::Event  *event);
+    void onTouchesMoved(const std::vector<Touch*>& touches, cocos2d::Event  *event);
+    void onTouchesEnded(const std::vector<Touch*>& touches, cocos2d::Event  *event);
+    void onTouchesCancelled(const std::vector<Touch*>& touches, cocos2d::Event  *event);
 
     CREATE_FUNC(MutiTouchTestLayer)
 };
