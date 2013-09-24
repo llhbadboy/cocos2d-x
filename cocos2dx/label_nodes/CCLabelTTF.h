@@ -40,17 +40,37 @@ NS_CC_BEGIN
 
 
 /** @brief CCLabelTTF is a subclass of CCTextureNode that knows how to render text labels
-*
-* All features from CCTextureNode are valid in CCLabelTTF
-*
-* CCLabelTTF objects are slow. Consider using CCLabelAtlas or CCLabelBMFont instead.
-*/
+ *
+ * All features from CCTextureNode are valid in CCLabelTTF
+ *
+ * CCLabelTTF objects are slow. Consider using CCLabelAtlas or CCLabelBMFont instead.
+ *
+ * Custom ttf file can be put in assets/ or external storage that the Application can access.
+ * @code
+ * CCLabelTTF *label1 = CCLabelTTF::create("alignment left", "A Damn Mess", fontSize, blockSize, 
+ *                                          kCCTextAlignmentLeft, kCCVerticalTextAlignmentCenter);
+ * CCLabelTTF *label2 = CCLabelTTF::create("alignment right", "/mnt/sdcard/Scissor Cuts.ttf", fontSize, blockSize,
+ *                                          kCCTextAlignmentLeft, kCCVerticalTextAlignmentCenter);
+ * @endcode
+ *
+ */
 class CC_DLL CCLabelTTF : public CCSprite, public CCLabelProtocol
 {
 public:
+    /**
+     *  @js ctor
+     */
     CCLabelTTF();
+    /**
+     *  @js NA
+     *  @lua NA
+     */
     virtual ~CCLabelTTF();
-    const char* description();    
+    /**
+     *  @js NA
+     *  @lua NA
+     */
+    const char* description();
     
     /** creates a CCLabelTTF with a font name and font size in points
      @since v2.0.1
@@ -69,6 +89,10 @@ public:
     static CCLabelTTF * create(const char *string, const char *fontName, float fontSize,
                                const CCSize& dimensions, CCTextAlignment hAlignment, 
                                CCVerticalTextAlignment vAlignment);
+    
+    
+    /** Create a lable with string and a font definition*/
+    static CCLabelTTF * createWithFontDefinition(const char *string, ccFontDefinition &textDefinition);
     
     /** initializes the CCLabelTTF with a font name and font size */
     bool initWithString(const char *string, const char *fontName, float fontSize);

@@ -33,13 +33,15 @@
 NS_CC_EXT_BEGIN
 
 /**
- A Node that draws the components of a physics engine.
+ A CCBaseData that draws the components of a physics engine.
  
  Supported physics engines:
  - Chipmunk
  - Objective-Chipmunk
  
  @since v2.1
+ @js NA
+ @lua NA
  */
 
 class CCPhysicsDebugNode : public CCDrawNode

@@ -515,7 +515,7 @@ bool CCTexture2D::initWithString(const char *text, ccFontDefinition *textDefinit
     
     #if CC_ENABLE_CACHE_TEXTURE_DATA
         // cache the texture data
-        VolatileTexture::addStringTexture(this, text, dimensions, hAlignment, vAlignment, fontName, fontSize);
+        VolatileTexture::addStringTexture(this, text, textDefinition->m_dimensions, textDefinition->m_alignment, textDefinition->m_vertAlignment, textDefinition->m_fontName.c_str(), textDefinition->m_fontSize);
     #endif
         
         bool bRet = false;
@@ -875,7 +875,6 @@ const char* CCTexture2D::stringForFormat()
 	return  NULL;
 }
 
-
 //
 // Texture options for images that contains alpha
 //
@@ -885,7 +884,6 @@ void CCTexture2D::setDefaultAlphaPixelFormat(CCTexture2DPixelFormat format)
 {
     g_defaultAlphaPixelFormat = format;
 }
-
 
 CCTexture2DPixelFormat CCTexture2D::defaultAlphaPixelFormat()
 {

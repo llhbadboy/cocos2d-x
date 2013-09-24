@@ -1,11 +1,3 @@
-    //
-//  RootViewController.mm
-//  test
-//
-//  Created by Walzer on 11-4-28.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
-//
-
 #import "RootViewController.h"
 
 
@@ -48,6 +40,12 @@
 }
 
 - (BOOL) shouldAutorotate {
+    return YES;
+}
+
+//fix not hide status on ios7
+- (BOOL)prefersStatusBarHidden
+{
     return YES;
 }
 

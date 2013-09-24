@@ -21,13 +21,16 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
+
+"[WebSocket module] is based in part on the work of the libwebsockets  project
+(http://libwebsockets.org)"
+
  ****************************************************************************/
 
 #ifndef __CC_WEBSOCKET_H__
 #define __CC_WEBSOCKET_H__
 
 #include "ExtensionMacros.h"
-#include <pthread.h>
 #include "cocos2d.h"
 #include "libwebsockets.h"
 #include <list>
@@ -40,7 +43,14 @@ class WsMessage;
 class WebSocket
 {
 public:
+    /**
+     * @js ctor
+     */
     WebSocket();
+    /**
+     *  @js NA
+     *  @lua NA
+     */
     virtual ~WebSocket();
     
     /**
@@ -66,6 +76,8 @@ public:
 
     /**
      *  @brief The delegate class to process websocket events.
+     *  @js NA
+     *  @lua NA
      */
     class Delegate
     {
@@ -84,6 +96,7 @@ public:
      *  @param  delegate The delegate which want to receive event from websocket.
      *  @param  url      The URL of websocket server.
      *  @return true: Success, false: Failure
+     *  @js NA
      */
     bool init(const Delegate& delegate,
               const std::string& url,
@@ -119,7 +132,6 @@ public:
      *  @brief Gets current state of connection.
      */
     State getReadyState();
-    
 private:
     virtual void onSubThreadStarted();
     virtual int onSubThreadLoop();
@@ -146,7 +158,7 @@ private:
     struct libwebsocket_context* _wsContext;
     Delegate* _delegate;
     int _SSLConnection;
-    libwebsocket_protocols* _wsProtocols;
+    struct libwebsocket_protocols* _wsProtocols;
 };
 
 NS_CC_EXT_END
