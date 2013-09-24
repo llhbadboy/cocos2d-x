@@ -6,78 +6,93 @@ USING_NS_CC;
 USING_NS_CC_EXT;
 
 HttpClientTest::HttpClientTest() 
-: m_labelStatusCode(NULL)
+: _labelStatusCode(NULL)
 {
-    CCSize winSize = CCDirector::sharedDirector()->getWinSize();
+    auto winSize = Director::getInstance()->getWinSize();
+
+    const int MARGIN = 40;
+    const int SPACE = 35;
     
-    CCLabelTTF *label = CCLabelTTF::create("Http Request Test", "Arial", 28);
-    label->setPosition(ccp(winSize.width / 2, winSize.height - 50));
+    auto label = LabelTTF::create("Http Request Test", "Arial", 28);
+    label->setPosition(Point(winSize.width / 2, winSize.height - MARGIN));
     addChild(label, 0);
     
-    CCMenu *menuRequest = CCMenu::create();
-    menuRequest->setPosition(CCPointZero);
+    auto menuRequest = Menu::create();
+    menuRequest->setPosition(Point::ZERO);
     addChild(menuRequest);
     
     // Get 
-    CCLabelTTF *labelGet = CCLabelTTF::create("Test Get", "Arial", 22);
-    CCMenuItemLabel *itemGet = CCMenuItemLabel::create(labelGet, this, menu_selector(HttpClientTest::onMenuGetTestClicked));
-    itemGet->setPosition(ccp(winSize.width / 2, winSize.height - 100));
+    auto labelGet = LabelTTF::create("Test Get", "Arial", 22);
+    auto itemGet = MenuItemLabel::create(labelGet, CC_CALLBACK_1(HttpClientTest::onMenuGetTestClicked, this));
+    itemGet->setPosition(Point(winSize.width / 2, winSize.height - MARGIN - SPACE));
     menuRequest->addChild(itemGet);
     
     // Post
-    CCLabelTTF *labelPost = CCLabelTTF::create("Test Post", "Arial", 22);
-    CCMenuItemLabel *itemPost = CCMenuItemLabel::create(labelPost, this, menu_selector(HttpClientTest::onMenuPostTestClicked));
-    itemPost->setPosition(ccp(winSize.width / 2, winSize.height - 150));
+    auto labelPost = LabelTTF::create("Test Post", "Arial", 22);
+    auto itemPost = MenuItemLabel::create(labelPost, CC_CALLBACK_1(HttpClientTest::onMenuPostTestClicked, this));
+    itemPost->setPosition(Point(winSize.width / 2, winSize.height - MARGIN - 2 * SPACE));
     menuRequest->addChild(itemPost);
     
     // Post Binary
-    CCLabelTTF *labelPostBinary = CCLabelTTF::create("Test Post Binary", "Arial", 22);
-    CCMenuItemLabel *itemPostBinary = CCMenuItemLabel::create(labelPostBinary, this, menu_selector(HttpClientTest::onMenuPostBinaryTestClicked));
-    itemPostBinary->setPosition(ccp(winSize.width / 2, winSize.height - 200));
+    auto labelPostBinary = LabelTTF::create("Test Post Binary", "Arial", 22);
+    auto itemPostBinary = MenuItemLabel::create(labelPostBinary, CC_CALLBACK_1(HttpClientTest::onMenuPostBinaryTestClicked, this));
+    itemPostBinary->setPosition(Point(winSize.width / 2, winSize.height - MARGIN - 3 * SPACE));
     menuRequest->addChild(itemPostBinary);
+
+    // Put
+    auto labelPut = LabelTTF::create("Test Put", "Arial", 22);
+    auto itemPut = MenuItemLabel::create(labelPut, CC_CALLBACK_1(HttpClientTest::onMenuPutTestClicked, this));
+    itemPut->setPosition(Point(winSize.width / 2, winSize.height - MARGIN - 4 * SPACE));
+    menuRequest->addChild(itemPut);
+
+    // Delete
+    auto labelDelete = LabelTTF::create("Test Delete", "Arial", 22);
+    auto itemDelete = MenuItemLabel::create(labelDelete, CC_CALLBACK_1(HttpClientTest::onMenuDeleteTestClicked, this));
+    itemDelete->setPosition(Point(winSize.width / 2, winSize.height - MARGIN - 5 * SPACE));
+    menuRequest->addChild(itemDelete);
     
     // Response Code Label
-    m_labelStatusCode = CCLabelTTF::create("HTTP Status Code", "Marker Felt", 20);
-    m_labelStatusCode->setPosition(ccp(winSize.width / 2,  winSize.height - 250));
-    addChild(m_labelStatusCode);
+    _labelStatusCode = LabelTTF::create("HTTP Status Code", "Marker Felt", 20);
+    _labelStatusCode->setPosition(Point(winSize.width / 2,  winSize.height - MARGIN - 6 * SPACE));
+    addChild(_labelStatusCode);
     
     // Back Menu
-    CCMenuItemFont *itemBack = CCMenuItemFont::create("Back", this, menu_selector(HttpClientTest::toExtensionsMainLayer));
-    itemBack->setPosition(ccp(VisibleRect::rightBottom().x - 50, VisibleRect::rightBottom().y + 25));
-    CCMenu *menuBack = CCMenu::create(itemBack, NULL);
-    menuBack->setPosition(CCPointZero);
+    auto itemBack = MenuItemFont::create("Back", CC_CALLBACK_1(HttpClientTest::toExtensionsMainLayer, this));
+    itemBack->setPosition(Point(VisibleRect::rightBottom().x - 50, VisibleRect::rightBottom().y + 25));
+    auto menuBack = Menu::create(itemBack, NULL);
+    menuBack->setPosition(Point::ZERO);
     addChild(menuBack);
 }
 
 HttpClientTest::~HttpClientTest()
 {
-    CCHttpClient::getInstance()->destroyInstance();
+    HttpClient::getInstance()->destroyInstance();
 }
 
-void HttpClientTest::onMenuGetTestClicked(cocos2d::CCObject *sender)
+void HttpClientTest::onMenuGetTestClicked(cocos2d::Object *sender)
 {    
     // test 1
     {
-        CCHttpRequest* request = new CCHttpRequest();
+        HttpRequest* request = new HttpRequest();
         request->setUrl("http://just-make-this-request-failed.com");
-        request->setRequestType(CCHttpRequest::kHttpGet);
-        request->setResponseCallback(this, callfuncND_selector(HttpClientTest::onHttpRequestCompleted));
+        request->setRequestType(HttpRequest::Type::GET);
+        request->setResponseCallback(this, httpresponse_selector(HttpClientTest::onHttpRequestCompleted));
         request->setTag("GET test1");
-        CCHttpClient::getInstance()->send(request);
+        HttpClient::getInstance()->send(request);
         request->release();
     }
     
     // test 2
     {
-        CCHttpRequest* request = new CCHttpRequest();
+        HttpRequest* request = new HttpRequest();
         // required fields
-        request->setUrl("http://www.httpbin.org/ip");
-        request->setRequestType(CCHttpRequest::kHttpGet);
-        request->setResponseCallback(this, callfuncND_selector(HttpClientTest::onHttpRequestCompleted));
+        request->setUrl("http://httpbin.org/ip");
+        request->setRequestType(HttpRequest::Type::GET);
+        request->setResponseCallback(this, httpresponse_selector(HttpClientTest::onHttpRequestCompleted));
         // optional fields                            
         request->setTag("GET test2");
     
-        CCHttpClient::getInstance()->send(request);
+        HttpClient::getInstance()->send(request);
     
         // don't forget to release it, pair to new
         request->release();
@@ -85,84 +100,153 @@ void HttpClientTest::onMenuGetTestClicked(cocos2d::CCObject *sender)
     
     // test 3   
     {
-        CCHttpRequest* request = new CCHttpRequest();
-        request->setUrl("http://www.httpbin.org/get");
-        request->setRequestType(CCHttpRequest::kHttpGet);
-        request->setResponseCallback(this, callfuncND_selector(HttpClientTest::onHttpRequestCompleted));
+        HttpRequest* request = new HttpRequest();
+        request->setUrl("http://httpbin.org/get");
+        request->setRequestType(HttpRequest::Type::GET);
+        request->setResponseCallback(this, httpresponse_selector(HttpClientTest::onHttpRequestCompleted));
         request->setTag("GET test3");
-        CCHttpClient::getInstance()->send(request);
+        HttpClient::getInstance()->send(request);
         request->release();
     }
         
     // waiting
-    m_labelStatusCode->setString("waiting...");
+    _labelStatusCode->setString("waiting...");
  
 }
 
-void HttpClientTest::onMenuPostTestClicked(cocos2d::CCObject *sender)
+void HttpClientTest::onMenuPostTestClicked(cocos2d::Object *sender)
 {
     // test 1
     {
-        CCHttpRequest* request = new CCHttpRequest();
-        request->setUrl("http://www.httpbin.org/post");
-        request->setRequestType(CCHttpRequest::kHttpPost);
-        request->setResponseCallback(this, callfuncND_selector(HttpClientTest::onHttpRequestCompleted));
+        HttpRequest* request = new HttpRequest();
+        request->setUrl("http://httpbin.org/post");
+        request->setRequestType(HttpRequest::Type::POST);
+        request->setResponseCallback(this, httpresponse_selector(HttpClientTest::onHttpRequestCompleted));
         
         // write the post data
         const char* postData = "visitor=cocos2d&TestSuite=Extensions Test/NetworkTest";
         request->setRequestData(postData, strlen(postData)); 
         
         request->setTag("POST test1");
-        CCHttpClient::getInstance()->send(request);
+        HttpClient::getInstance()->send(request);
         request->release();
     }
     
     // test 2: set Content-Type
     {
-        CCHttpRequest* request = new CCHttpRequest();
-        request->setUrl("http://www.httpbin.org/post");
-        request->setRequestType(CCHttpRequest::kHttpPost);
+        HttpRequest* request = new HttpRequest();
+        request->setUrl("http://httpbin.org/post");
+        request->setRequestType(HttpRequest::Type::POST);
         std::vector<std::string> headers;
         headers.push_back("Content-Type: application/json; charset=utf-8");
         request->setHeaders(headers);
-        request->setResponseCallback(this, callfuncND_selector(HttpClientTest::onHttpRequestCompleted));
+        request->setResponseCallback(this, httpresponse_selector(HttpClientTest::onHttpRequestCompleted));
         
         // write the post data
         const char* postData = "visitor=cocos2d&TestSuite=Extensions Test/NetworkTest";
         request->setRequestData(postData, strlen(postData)); 
         
         request->setTag("POST test2");
-        CCHttpClient::getInstance()->send(request);
+        HttpClient::getInstance()->send(request);
         request->release();
     }
     
     // waiting
-    m_labelStatusCode->setString("waiting...");
+    _labelStatusCode->setString("waiting...");
 }
 
-void HttpClientTest::onMenuPostBinaryTestClicked(cocos2d::CCObject *sender)
+void HttpClientTest::onMenuPostBinaryTestClicked(cocos2d::Object *sender)
 {
-    CCHttpRequest* request = new CCHttpRequest();
-    request->setUrl("http://www.httpbin.org/post");
-    request->setRequestType(CCHttpRequest::kHttpPost);
-    request->setResponseCallback(this, callfuncND_selector(HttpClientTest::onHttpRequestCompleted));
+    HttpRequest* request = new HttpRequest();
+    request->setUrl("http://httpbin.org/post");
+    request->setRequestType(HttpRequest::Type::POST);
+    request->setResponseCallback(this, httpresponse_selector(HttpClientTest::onHttpRequestCompleted));
     
     // write the post data
     char postData[22] = "binary=hello\0\0cocos2d";  // including \0, the strings after \0 should not be cut in response
     request->setRequestData(postData, 22); 
     
     request->setTag("POST Binary test");
-    CCHttpClient::getInstance()->send(request);
+    HttpClient::getInstance()->send(request);
     request->release();
     
     // waiting
-    m_labelStatusCode->setString("waiting...");
+    _labelStatusCode->setString("waiting...");
 }
 
-void HttpClientTest::onHttpRequestCompleted(cocos2d::CCNode *sender, void *data)
-{
-    CCHttpResponse *response = (CCHttpResponse*)data;
 
+
+void HttpClientTest::onMenuPutTestClicked(Object *sender)
+{
+    // test 1
+    {
+        HttpRequest* request = new HttpRequest();
+        request->setUrl("http://httpbin.org/put");
+        request->setRequestType(HttpRequest::Type::PUT);
+        request->setResponseCallback(this, httpresponse_selector(HttpClientTest::onHttpRequestCompleted));
+
+        // write the post data
+        const char* postData = "visitor=cocos2d&TestSuite=Extensions Test/NetworkTest";
+        request->setRequestData(postData, strlen(postData));
+
+        request->setTag("PUT test1");
+        HttpClient::getInstance()->send(request);
+        request->release();
+    }
+
+    // test 2: set Content-Type
+    {
+        HttpRequest* request = new HttpRequest();
+        request->setUrl("http://httpbin.org/put");
+        request->setRequestType(HttpRequest::Type::PUT);
+        std::vector<std::string> headers;
+        headers.push_back("Content-Type: application/json; charset=utf-8");
+        request->setHeaders(headers);
+        request->setResponseCallback(this, httpresponse_selector(HttpClientTest::onHttpRequestCompleted));
+
+        // write the post data
+        const char* postData = "visitor=cocos2d&TestSuite=Extensions Test/NetworkTest";
+        request->setRequestData(postData, strlen(postData));
+
+        request->setTag("PUT test2");
+        HttpClient::getInstance()->send(request);
+        request->release();
+    }
+
+    // waiting
+    _labelStatusCode->setString("waiting...");
+}
+
+void HttpClientTest::onMenuDeleteTestClicked(Object *sender)
+{
+    // test 1
+    {
+        HttpRequest* request = new HttpRequest();
+        request->setUrl("http://just-make-this-request-failed.com");
+        request->setRequestType(HttpRequest::Type::DELETE);
+        request->setResponseCallback(this, httpresponse_selector(HttpClientTest::onHttpRequestCompleted));
+        request->setTag("DELETE test1");
+        HttpClient::getInstance()->send(request);
+        request->release();
+    }
+
+    // test 2
+    {
+        HttpRequest* request = new HttpRequest();
+        request->setUrl("http://httpbin.org/delete");
+        request->setRequestType(HttpRequest::Type::DELETE);
+        request->setResponseCallback(this, httpresponse_selector(HttpClientTest::onHttpRequestCompleted));
+        request->setTag("DELETE test2");
+        HttpClient::getInstance()->send(request);
+        request->release();
+    }
+
+    // waiting
+    _labelStatusCode->setString("waiting...");
+}
+
+void HttpClientTest::onHttpRequestCompleted(HttpClient *sender, HttpResponse *response)
+{
     if (!response)
     {
         return;
@@ -171,19 +255,19 @@ void HttpClientTest::onHttpRequestCompleted(cocos2d::CCNode *sender, void *data)
     // You can get original request type from: response->request->reqType
     if (0 != strlen(response->getHttpRequest()->getTag())) 
     {
-        CCLog("%s completed", response->getHttpRequest()->getTag());
+        log("%s completed", response->getHttpRequest()->getTag());
     }
     
     int statusCode = response->getResponseCode();
     char statusString[64] = {};
     sprintf(statusString, "HTTP Status Code: %d, tag = %s", statusCode, response->getHttpRequest()->getTag());
-    m_labelStatusCode->setString(statusString);
-    CCLog("response code: %d", statusCode);
+    _labelStatusCode->setString(statusString);
+    log("response code: %d", statusCode);
     
     if (!response->isSucceed()) 
     {
-        CCLog("response failed");
-        CCLog("error buffer: %s", response->getErrorBuffer());
+        log("response failed");
+        log("error buffer: %s", response->getErrorBuffer());
         return;
     }
     
@@ -197,20 +281,19 @@ void HttpClientTest::onHttpRequestCompleted(cocos2d::CCNode *sender, void *data)
     printf("\n");
 }
 
-void HttpClientTest::toExtensionsMainLayer(cocos2d::CCObject *sender)
+void HttpClientTest::toExtensionsMainLayer(cocos2d::Object *sender)
 {
-    ExtensionsTestScene *pScene = new ExtensionsTestScene();
-    pScene->runThisTest();
-    pScene->release();
+    auto scene = new ExtensionsTestScene();
+    scene->runThisTest();
+    scene->release();
 }
 
 void runHttpClientTest()
 {
-    CCScene *pScene = CCScene::create();
-    HttpClientTest *pLayer = new HttpClientTest();
-    pScene->addChild(pLayer);
+    auto scene = Scene::create();
+    HttpClientTest *layer = new HttpClientTest();
+    scene->addChild(layer);
     
-    CCDirector::sharedDirector()->replaceScene(pScene);
-    pLayer->release();
+    Director::getInstance()->replaceScene(scene);
+    layer->release();
 }
-

@@ -2,10 +2,20 @@
 
 NS_CC_BEGIN
 
-int CCDevice::getDPI()
+int Device::getDPI()
 {
 //TODO: 
     return 160;
+}
+
+void Device::setAccelerometerEnabled(bool isEnabled)
+{
+
+}
+
+void Device::setAccelerometerInterval(float interval)
+{
+
 }
 
 NS_CC_END

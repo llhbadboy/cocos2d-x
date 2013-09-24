@@ -24,108 +24,363 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "CCConfiguration.h"
+#include <string.h>
 #include "ccMacros.h"
 #include "ccConfig.h"
-#include <string.h>
+#include "cocoa/CCDictionary.h"
+#include "cocoa/CCInteger.h"
+#include "cocoa/CCBool.h"
+#include "cocos2d.h"
+#include "platform/CCFileUtils.h"
 
 using namespace std;
 
 NS_CC_BEGIN
 
-CCConfiguration* CCConfiguration::s_gSharedConfiguration = NULL;
 
-CCConfiguration::CCConfiguration(void)
-: m_nMaxTextureSize(0) 
-, m_nMaxModelviewStackDepth(0)
-, m_bSupportsPVRTC(false)
-, m_bSupportsNPOT(false)
-, m_bSupportsBGRA8888(false)
-, m_bSupportsDiscardFramebuffer(false)
-, m_bSupportsShareableVAO(false)
-, m_nMaxSamplesAllowed(0)
-, m_nMaxTextureUnits(0)
-, m_pGlExtensions(NULL)
+Configuration* Configuration::s_sharedConfiguration = nullptr;
+
+Configuration::Configuration()
+: _maxTextureSize(0) 
+, _maxModelviewStackDepth(0)
+, _supportsPVRTC(false)
+, _supportsETC1(false)
+, _supportsS3TC(false)
+, _supportsATITC(false)
+, _supportsNPOT(false)
+, _supportsBGRA8888(false)
+, _supportsDiscardFramebuffer(false)
+, _supportsShareableVAO(false)
+, _maxSamplesAllowed(0)
+, _maxTextureUnits(0)
+, _glExtensions(nullptr)
+, _valueDict(nullptr)
 {
 }
 
-bool CCConfiguration::init(void)
+bool Configuration::init()
 {
-    CCLOG("cocos2d: GL_VENDOR:     %s", glGetString(GL_VENDOR));
-    CCLOG("cocos2d: GL_RENDERER:   %s", glGetString(GL_RENDERER));
-    CCLOG("cocos2d: GL_VERSION:    %s", glGetString(GL_VERSION));
+	_valueDict = Dictionary::create();
+	_valueDict->retain();
 
-    m_pGlExtensions = (char *)glGetString(GL_EXTENSIONS);
+	_valueDict->setObject(String::create( cocos2dVersion() ), "cocos2d.x.version");
 
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_nMaxTextureSize);
-    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &m_nMaxTextureUnits);
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    glGetIntegerv(GL_MAX_SAMPLES_APPLE, &m_nMaxSamplesAllowed);
-#endif
-
-    m_bSupportsPVRTC = checkForGLExtension("GL_IMG_texture_compression_pvrtc");
-    m_bSupportsNPOT = true;
-    m_bSupportsBGRA8888 = checkForGLExtension("GL_IMG_texture_format_BGRA888");
-    m_bSupportsDiscardFramebuffer = checkForGLExtension("GL_EXT_discard_framebuffer");
-
-    m_bSupportsShareableVAO = checkForGLExtension("vertex_array_object");
-
-    CCLOG("cocos2d: GL_MAX_TEXTURE_SIZE: %d", m_nMaxTextureSize);
-    CCLOG("cocos2d: GL_MAX_TEXTURE_UNITS: %d",m_nMaxTextureUnits);
-    CCLOG("cocos2d: GL supports PVRTC: %s", (m_bSupportsPVRTC ? "YES" : "NO"));
-    CCLOG("cocos2d: GL supports BGRA8888 textures: %s", (m_bSupportsBGRA8888 ? "YES" : "NO"));
-    CCLOG("cocos2d: GL supports NPOT textures: %s", (m_bSupportsNPOT ? "YES" : "NO"));
-    CCLOG("cocos2d: GL supports discard_framebuffer: %s", (m_bSupportsDiscardFramebuffer ? "YES" : "NO"));
-    CCLOG("cocos2d: GL supports shareable VAO: %s", (m_bSupportsShareableVAO ? "YES" : "NO") );
-
-    bool CC_UNUSED bEnableProfilers = false;
 
 #if CC_ENABLE_PROFILERS
-    bEnableProfilers = true;
+	_valueDict->setObject(Bool::create(true), "cocos2d.x.compiled_with_profiler");
 #else
-    bEnableProfilers = false;
+	_valueDict->setObject(Bool::create(false), "cocos2d.x.compiled_with_profiler");
 #endif
-    CCLOG("cocos2d: compiled with Profiling Support: %s",
-        bEnableProfilers ? "YES - *** Disable it when you finish profiling ***" : "NO");
-    
+
 #if CC_ENABLE_GL_STATE_CACHE == 0
-    CCLOG("");
-    CCLOG("cocos2d: **** WARNING **** CC_ENABLE_GL_STATE_CACHE is disabled. To improve performance, enable it by editing ccConfig.h");
+	_valueDict->setObject(Bool::create(false), "cocos2d.x.compiled_with_gl_state_cache");
+#else
+	_valueDict->setObject(Bool::create(true), "cocos2d.x.compiled_with_gl_state_cache");
+#endif
+
+	return true;
+}
+
+Configuration::~Configuration()
+{
+	_valueDict->release();
+}
+
+void Configuration::dumpInfo() const
+{
+	// Dump
+	PrettyPrinter visitor(0);
+	_valueDict->acceptVisitor(visitor);
+
+	CCLOG("%s", visitor.getResult().c_str());
+
+
+	// And Dump some warnings as well
+#if CC_ENABLE_PROFILERS
+    CCLOG("cocos2d: **** WARNING **** CC_ENABLE_PROFILERS is defined. Disable it when you finish profiling (from ccConfig.h)");
     printf("\n");
 #endif
+
+#if CC_ENABLE_GL_STATE_CACHE == 0
+    CCLOG("");
+    CCLOG("cocos2d: **** WARNING **** CC_ENABLE_GL_STATE_CACHE is disabled. To improve performance, enable it (from ccConfig.h)");
+    printf("\n");
+#endif
+
+}
+
+void Configuration::gatherGPUInfo()
+{
+	_valueDict->setObject(String::create((const char*)glGetString(GL_VENDOR)), "gl.vendor");
+	_valueDict->setObject(String::create((const char*)glGetString(GL_RENDERER)), "gl.renderer");
+	_valueDict->setObject(String::create((const char*)glGetString(GL_VERSION)), "gl.version");
+
+    _glExtensions = (char *)glGetString(GL_EXTENSIONS);
+
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &_maxTextureSize);
+	_valueDict->setObject(Integer::create((int)_maxTextureSize), "gl.max_texture_size");
+
+    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_maxTextureUnits);
+	_valueDict->setObject(Integer::create((int)_maxTextureUnits), "gl.max_texture_units");
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    glGetIntegerv(GL_MAX_SAMPLES_APPLE, &_maxSamplesAllowed);
+	_valueDict->setObject(Integer::create((int)_maxSamplesAllowed), "gl.max_samples_allowed");
+#endif
+    
+    _supportsETC1 = checkForGLExtension("GL_OES_compressed_ETC1_RGB8_texture");
+    _valueDict->setObject(Bool::create(_supportsETC1), "gl.supports_ETC1");
+    
+    _supportsS3TC = checkForGLExtension("GL_EXT_texture_compression_s3tc");
+    _valueDict->setObject(Bool::create(_supportsS3TC), "gl.supports_S3TC");
+    
+    _supportsATITC = checkForGLExtension("GL_AMD_compressed_ATC_texture");
+    _valueDict->setObject(Bool::create(_supportsATITC), "gl.supports_ATITC");
+    
+    _supportsPVRTC = checkForGLExtension("GL_IMG_texture_compression_pvrtc");
+	_valueDict->setObject(Bool::create(_supportsPVRTC), "gl.supports_PVRTC");
+
+    _supportsNPOT = true;
+	_valueDict->setObject(Bool::create(_supportsNPOT), "gl.supports_NPOT");
+	
+    _supportsBGRA8888 = checkForGLExtension("GL_IMG_texture_format_BGRA888");
+	_valueDict->setObject(Bool::create(_supportsBGRA8888), "gl.supports_BGRA8888");
+
+    _supportsDiscardFramebuffer = checkForGLExtension("GL_EXT_discard_framebuffer");
+	_valueDict->setObject(Bool::create(_supportsDiscardFramebuffer), "gl.supports_discard_framebuffer");
+
+    _supportsShareableVAO = checkForGLExtension("vertex_array_object");
+	_valueDict->setObject(Bool::create(_supportsShareableVAO), "gl.supports_vertex_array_object");
     
     CHECK_GL_ERROR_DEBUG();
-
-    return true;
 }
 
-CCConfiguration* CCConfiguration::sharedConfiguration(void)
+Configuration* Configuration::getInstance()
 {
-    if (! s_gSharedConfiguration)
+    if (! s_sharedConfiguration)
     {
-        s_gSharedConfiguration = new CCConfiguration();
-        s_gSharedConfiguration->init();
+        s_sharedConfiguration = new Configuration();
+        s_sharedConfiguration->init();
     }
     
-    return s_gSharedConfiguration;
+    return s_sharedConfiguration;
 }
 
-void CCConfiguration::purgeConfiguration(void)
+void Configuration::destroyInstance()
 {
-    CC_SAFE_RELEASE_NULL(s_gSharedConfiguration);
+    CC_SAFE_RELEASE_NULL(s_sharedConfiguration);
 }
 
-bool CCConfiguration::checkForGLExtension(const string &searchName)
+// XXX: deprecated
+Configuration* Configuration::sharedConfiguration()
 {
-    bool bRet = false;
+    return Configuration::getInstance();
+}
+
+// XXX: deprecated
+void Configuration::purgeConfiguration()
+{
+    Configuration::destroyInstance();
+}
+
+
+bool Configuration::checkForGLExtension(const string &searchName) const
+{
+    bool ret = false;
     const char *kSearchName = searchName.c_str();
     
-    if (m_pGlExtensions && 
-        strstr(m_pGlExtensions, kSearchName))
+    if (_glExtensions && 
+        strstr(_glExtensions, kSearchName))
     {
-        bRet = true;
+        ret = true;
     }
     
-    return bRet;
+    return ret;
+}
+
+//
+// getters for specific variables.
+// Mantained for backward compatiblity reasons only.
+//
+int Configuration::getMaxTextureSize() const
+{
+	return _maxTextureSize;
+}
+
+int Configuration::getMaxModelviewStackDepth() const
+{
+	return _maxModelviewStackDepth;
+}
+
+int Configuration::getMaxTextureUnits() const
+{
+	return _maxTextureUnits;
+}
+
+bool Configuration::supportsNPOT() const
+{
+	return _supportsNPOT;
+}
+
+bool Configuration::supportsPVRTC() const
+{
+	return _supportsPVRTC;
+}
+
+bool Configuration::supportsETC() const
+{
+    //GL_ETC1_RGB8_OES is not defined in old opengl version
+#ifdef GL_ETC1_RGB8_OES
+    return _supportsETC1;
+#else
+    return false;
+#endif
+}
+
+bool Configuration::supportsS3TC() const
+{
+    return _supportsS3TC;
+}
+
+bool Configuration::supportsATITC() const
+{
+    return _supportsATITC;
+}
+
+bool Configuration::supportsBGRA8888() const
+{
+	return _supportsBGRA8888;
+}
+
+bool Configuration::supportsDiscardFramebuffer() const
+{
+	return _supportsDiscardFramebuffer;
+}
+
+bool Configuration::supportsShareableVAO() const
+{
+	return _supportsShareableVAO;
+}
+
+//
+// generic getters for properties
+//
+const char *Configuration::getCString(const char *key, const char *defaultValue) const
+{
+	Object *ret = _valueDict->objectForKey(key);
+	if (ret)
+    {
+		if (String *str=dynamic_cast<String*>(ret))
+			return str->getCString();
+
+		CCASSERT(false, "Key found, but from different type");
+	}
+
+	// XXX: Should it throw an exception ?
+	return defaultValue;
+}
+
+/** returns the value of a given key as a boolean */
+bool Configuration::getBool(const char *key, bool defaultValue) const
+{
+	Object *ret = _valueDict->objectForKey(key);
+	if (ret)
+    {
+		if (Bool *boolobj=dynamic_cast<Bool*>(ret))
+			return boolobj->getValue();
+		if (String *strobj=dynamic_cast<String*>(ret))
+			return strobj->boolValue();
+		CCASSERT(false, "Key found, but from different type");
+	}
+
+	// XXX: Should it throw an exception ?
+	return defaultValue;
+}
+
+/** returns the value of a given key as a double */
+double Configuration::getNumber( const char *key, double defaultValue ) const
+{
+	Object *ret = _valueDict->objectForKey(key);
+	if( ret )
+    {
+		if (Double *obj=dynamic_cast<Double*>(ret))
+			return obj->getValue();
+
+		if (Integer *obj=dynamic_cast<Integer*>(ret))
+			return obj->getValue();
+
+		if (String *strobj=dynamic_cast<String*>(ret))
+			return strobj->doubleValue();
+
+		CCASSERT(false, "Key found, but from different type");
+	}
+
+	// XXX: Should it throw an exception ?
+	return defaultValue;
+}
+
+Object * Configuration::getObject(const char *key) const
+{
+	return _valueDict->objectForKey(key);
+}
+
+void Configuration::setObject(const char *key, Object *value)
+{
+	_valueDict->setObject(value, key);
+}
+
+
+//
+// load file
+//
+void Configuration::loadConfigFile(const char *filename)
+{
+	Dictionary *dict = Dictionary::createWithContentsOfFile(filename);
+	CCASSERT(dict, "cannot create dictionary");
+
+	// search for metadata
+	bool validMetadata = false;
+	Object *metadata = dict->objectForKey("metadata");
+	if (metadata && dynamic_cast<Dictionary*>(metadata))
+    {
+		Object *format_o = static_cast<Dictionary*>(metadata)->objectForKey("format");
+
+		// XXX: cocos2d-x returns Strings when importing from .plist. This bug will be addressed in cocos2d-x v3.x
+		if (format_o && dynamic_cast<String*>(format_o))
+        {
+			int format = static_cast<String*>(format_o)->intValue();
+
+			// Support format: 1
+			if (format == 1)
+            {
+				validMetadata = true;
+			}
+		}
+	}
+
+	if (! validMetadata)
+    {
+		CCLOG("Invalid config format for file: %s", filename);
+		return;
+	}
+
+	Object *data = dict->objectForKey("data");
+	if (!data || !dynamic_cast<Dictionary*>(data))
+    {
+		CCLOG("Expected 'data' dict, but not found. Config file: %s", filename);
+		return;
+	}
+
+	// Add all keys in the existing dictionary
+	Dictionary *data_dict = static_cast<Dictionary*>(data);
+    DictElement* element;
+    CCDICT_FOREACH(data_dict, element)
+    {
+		if(! _valueDict->objectForKey( element->getStrKey() ))
+			_valueDict->setObject(element->getObject(), element->getStrKey());
+		else
+			CCLOG("Key already present. Ignoring '%s'", element->getStrKey());
+    }
 }
 
 NS_CC_END

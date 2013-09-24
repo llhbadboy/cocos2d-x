@@ -25,7 +25,6 @@ THE SOFTWARE.
 #include "cocoa/CCSet.h"
 #include "CCDirector.h"
 #include "ccMacros.h"
-#include "touch_dispatcher/CCTouchDispatcher.h"
 #include "jni/IMEJni.h"
 #include "jni/Java_org_cocos2dx_lib_Cocos2dxHelper.h"
 #include "CCGL.h"
@@ -55,37 +54,43 @@ void initExtensions() {
 
 NS_CC_BEGIN
 
-CCEGLView::CCEGLView()
+EGLView::EGLView()
 {
     initExtensions();
 }
 
-CCEGLView::~CCEGLView()
+EGLView::~EGLView()
 {
 
 }
 
-bool CCEGLView::isOpenGLReady()
+bool EGLView::isOpenGLReady()
 {
-    return (m_obScreenSize.width != 0 && m_obScreenSize.height != 0);
+    return (_screenSize.width != 0 && _screenSize.height != 0);
 }
 
-void CCEGLView::end()
+void EGLView::end()
 {
     terminateProcessJNI();
 }
 
-void CCEGLView::swapBuffers()
+void EGLView::swapBuffers()
 {
 }
 
-CCEGLView* CCEGLView::sharedOpenGLView()
+EGLView* EGLView::getInstance()
 {
-    static CCEGLView instance;
+    static EGLView instance;
     return &instance;
 }
 
-void CCEGLView::setIMEKeyboardState(bool bOpen)
+// XXX: deprecated
+EGLView* EGLView::sharedOpenGLView()
+{
+    return EGLView::getInstance();
+}
+
+void EGLView::setIMEKeyboardState(bool bOpen)
 {
     setKeyboardStateJNI((int)bOpen);
 }

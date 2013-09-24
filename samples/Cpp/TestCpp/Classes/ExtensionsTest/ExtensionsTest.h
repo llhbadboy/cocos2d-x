@@ -3,11 +3,18 @@
 
 #include "../testBasic.h"
 
-class ExtensionsMainLayer : public CCLayer
+class ExtensionsMainLayer : public Layer
 {
 public:
     virtual void onEnter();
-    void menuCallback(CCObject* pSender);
+
+	virtual void onTouchesBegan(const std::vector<Touch*>& touches, Event  *event);
+    virtual void onTouchesMoved(const std::vector<Touch*>& touches, Event  *event);
+
+	Point _beginPos;
+    Menu* _itemMenu;
+
+	int _testcount;
 };
 
 class ExtensionsTestScene : public TestScene

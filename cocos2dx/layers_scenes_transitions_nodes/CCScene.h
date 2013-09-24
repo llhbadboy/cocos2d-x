@@ -28,6 +28,7 @@ THE SOFTWARE.
 #define __CCSCENE_H__
 
 #include "base_nodes/CCNode.h"
+#include "physics/CCPhysicsWorld.h"
 
 NS_CC_BEGIN
 
@@ -36,24 +37,57 @@ NS_CC_BEGIN
  * @{
  */
 
-/** @brief CCScene is a subclass of CCNode that is used only as an abstract concept.
+/** @brief Scene is a subclass of Node that is used only as an abstract concept.
 
-CCScene an CCNode are almost identical with the difference that CCScene has it's
+Scene and Node are almost identical with the difference that Scene has its
 anchor point (by default) at the center of the screen.
 
-For the moment CCScene has no other logic than that, but in future releases it might have
+For the moment Scene has no other logic than that, but in future releases it might have
 additional logic.
 
-It is a good practice to use and CCScene as the parent of all your nodes.
+It is a good practice to use a Scene as the parent of all your nodes.
 */
-class CC_DLL CCScene : public CCNode
+class CC_DLL Scene : public Node
 {
 public:
-    CCScene();
-    virtual ~CCScene();
-    bool init();
+    /** creates a new Scene object */
+    static Scene *create();
+#ifdef CC_USE_PHYSICS
+    static Scene *createWithPhysics();
+#endif
 
-    static CCScene *create(void);
+    Scene();
+    /**
+     * @js NA
+     * @lua NA
+     */
+    virtual ~Scene();
+    
+    bool init();
+    
+#ifdef CC_USE_PHYSICS
+public:
+    bool initWithPhysics();
+    
+    virtual void addChild(Node* child) override;
+    virtual void addChild(Node* child, int zOrder) override;
+    virtual void addChild(Node* child, int zOrder, int tag) override;
+    
+    /*
+     * Update method will be called automatically every frame if "scheduleUpdate" is called, and the node is "live"
+     */
+    virtual void update(float delta) override;
+    
+    inline PhysicsWorld* getPhysicsWorld() { return _physicsWorld; }
+    
+protected:
+    virtual void addChildToPhysicsWorld(Node* child);
+    
+protected:
+    PhysicsWorld* _physicsWorld;
+#endif // CC_USE_PHYSICS
+    
+    friend class Layer;
 };
 
 // end of scene group

@@ -3,25 +3,24 @@
 
 #include "../testBasic.h"
 
-class BugsTestMainLayer : public CCLayer
+class BugsTestMainLayer : public Layer
 {
 public:
     virtual void onEnter();
-    void menuCallback(CCObject* pSender);
 
-    virtual void ccTouchesBegan(CCSet *pTouches, CCEvent *pEvent);
-    virtual void ccTouchesMoved(CCSet *pTouches, CCEvent *pEvent);
+    virtual void onTouchesBegan(const std::vector<Touch*>& touches, Event  *event) override;
+    virtual void onTouchesMoved(const std::vector<Touch*>&touches, Event  *event) override;
 
 protected:
-    CCPoint m_tBeginPos;
-    CCMenu* m_pItmeMenu;
+    Point _beginPos;
+    Menu* _itmeMenu;
 };
 
-class BugsTestBaseLayer : public CCLayer
+class BugsTestBaseLayer : public Layer
 {
 public:
     virtual void onEnter();
-    void backCallback(CCObject* pSender);
+    void backCallback(Object* sender);
 };
 
 class BugsTestScene : public TestScene

@@ -44,8 +44,8 @@
 #else
 #define JSB_PRECONDITION( condition, ...) do {							\
 	if( ! (condition) ) {														\
-        cocos2d::CCLog("jsb: ERROR: File %s: Line: %d, Function: %s", __FILE__, __LINE__, __FUNCTION__ );			\
-        cocos2d::CCLog(__VA_ARGS__);                                        \
+        cocos2d::log("jsb: ERROR: File %s: Line: %d, Function: %s", __FILE__, __LINE__, __FUNCTION__ );			\
+        cocos2d::log(__VA_ARGS__);                                        \
 		JSContext* globalContext = ScriptingCore::getInstance()->getGlobalContext();	\
 		if( ! JS_IsExceptionPending( globalContext ) ) {						\
 			JS_ReportError( globalContext, __VA_ARGS__ );							\
@@ -55,8 +55,8 @@
 } while(0)
 #define JSB_PRECONDITION2( condition, context, ret_value, ...) do {             \
     if( ! (condition) ) {														\
-        cocos2d::CCLog("jsb: ERROR: File %s: Line: %d, Function: %s", __FILE__, __LINE__, __FUNCTION__ );			\
-        cocos2d::CCLog(__VA_ARGS__);                                        \
+        cocos2d::log("jsb: ERROR: File %s: Line: %d, Function: %s", __FILE__, __LINE__, __FUNCTION__ );			\
+        cocos2d::log(__VA_ARGS__);                                        \
         if( ! JS_IsExceptionPending( context ) ) {							\
             JS_ReportError( context, __VA_ARGS__ );								\
         }																		\
@@ -71,6 +71,9 @@
 	} while(0)
 #endif
 
+#define JSB_PRECONDITION3( condition, context, ret_value, ...) do { \
+        if( ! (condition) ) return (ret_value); \
+    } while(0)
 
 
 /** @def JSB_REPRESENT_LONGLONG_AS_STR
@@ -152,7 +155,7 @@ JSAutoCompartment ac(cx, obj)
  * @def JSB_DEBUGGER_PORT
  * The port number, where the client will be listening on
  */
-#define JSB_DEBUGGER_PORT 1337
+#define JSB_DEBUGGER_PORT 5086
 
 /** @def JSB_INCLUDE_SYSTEM
  Whether or not it should include bindings for system components like LocalStorage
@@ -167,6 +170,13 @@ JSAutoCompartment ac(cx, obj)
 #ifndef JSB_INCLUDE_OPENGL
 #define JSB_INCLUDE_OPENGL 1
 #endif // JSB_INCLUDE_OPENGL
+
+/** @def JSB_INCLUDE_XMLHTTP
+ Whether or not it should include bindings for XmlHttpRequest
+ */
+#ifndef JSB_INCLUDE_XMLHTTP
+#define JSB_INCLUDE_XMLHTTP 1
+#endif // JSB_INCLUDE_XMLHTTP
 
 #ifndef JSB_MAX_STACK_QUOTA
 #define JSB_MAX_STACK_QUOTA 500000
