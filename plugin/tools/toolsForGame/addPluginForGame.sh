@@ -40,16 +40,24 @@ if [ -d "${TARGET_ROOT}" ]; then
     export NEED_PUBLISH="protocols":$2
     
     # Modify mk file
-    MK_FILE_PATH="${GAME_PROJECT_DIR}"/jni/Android.mk
-    ${SHELL_DIR}/modifyMk.sh "${MK_FILE_PATH}"
+    #MK_FILE_PATH="${GAME_PROJECT_DIR}"/jni/Android.mk
+    #${SHELL_DIR}/modifyMk.sh "${MK_FILE_PATH}"
     
     # Modify Application.mk file (add stl & rtti configuration)
-    APP_MK_FILE_PATH="${GAME_PROJECT_DIR}"/jni/Application.mk
-    ${SHELL_DIR}/modifyAppMk.sh "${APP_MK_FILE_PATH}"
+    #APP_MK_FILE_PATH="${GAME_PROJECT_DIR}"/jni/Application.mk
+    #${SHELL_DIR}/modifyAppMk.sh "${APP_MK_FILE_PATH}"
     
     # Combin ForRes directory to the res directory of game project
     GAME_RES_DIR="${GAME_PROJECT_DIR}"/res
     ${SHELL_DIR}/modifyRes.sh "${GAME_RES_DIR}"
+
+    # Combin ForAssets directory to the res directory of game project
+    GAME_ASSETS_DIR="${GAME_PROJECT_DIR}"/assets
+    ${SHELL_DIR}/modifyAsset.sh "${GAME_ASSETS_DIR}"
+
+    # cp *.jar to libs
+    GAME_LIBS_DIR="${GAME_PROJECT_DIR}"/libs
+    ${SHELL_DIR}/modifyJar.sh "${GAME_LIBS_DIR}"
     
     # get system dir
     SYS_TARGET_ROOT=$(getPathForSystem ${TARGET_ROOT})
@@ -57,12 +65,12 @@ if [ -d "${TARGET_ROOT}" ]; then
     SYS_PROJ_DIR=$(getPathForSystem ${GAME_PROJECT_DIR})
     
     # Modify .project file (link publish directory to the game project)
-    PROJECT_FILE_PATH="${SYS_PROJ_DIR}"/.project
-    python ${SYS_SHELL_DIR}/modifyProject.py "${PROJECT_FILE_PATH}" "${SYS_TARGET_ROOT}"
+    #PROJECT_FILE_PATH="${SYS_PROJ_DIR}"/.project
+    #python ${SYS_SHELL_DIR}/modifyProject.py "${PROJECT_FILE_PATH}" "${SYS_TARGET_ROOT}"
     
     # Modify .classpath file (link jar files for game project)
-    CLASSPATH_FILE="${SYS_PROJ_DIR}"/.classpath
-    python ${SYS_SHELL_DIR}/modifyClassPath.py "${CLASSPATH_FILE}" "${NEED_PUBLISH}" "${SYS_TARGET_ROOT}"
+    #CLASSPATH_FILE="${SYS_PROJ_DIR}"/.classpath
+    #python ${SYS_SHELL_DIR}/modifyClassPath.py "${CLASSPATH_FILE}" "${NEED_PUBLISH}" "${SYS_TARGET_ROOT}"
     
     # Modify AndroidManifest.xml file (add permission & add activity info)
     MANIFEST_FILE="${SYS_PROJ_DIR}"/AndroidManifest.xml

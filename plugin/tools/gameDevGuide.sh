@@ -5,6 +5,9 @@ pushd ${SHELL_DIR}
 source ./config.sh
 
 # show dialog for continue
-python ./toolsForGame/main.py ${PLUGINS_CAN_SELECT}
+# python ./toolsForGame/main.py ${PLUGINS_CAN_SELECT}
+
+PROJ_PATH="/Users/Alex/Dev/cocos2d-x-2.1.4/projects/Sevenseas/proj.android";
+toolsForGame/addPluginForGame.sh ${PROJ_PATH} "plugins/alipay"
 
 popd

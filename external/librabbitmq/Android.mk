@@ -1,0 +1,25 @@
+LOCAL_PATH := $(call my-dir)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := librabbitmq_static
+
+LOCAL_MODULE_FILENAME := rabbitmq
+
+LOCAL_SRC_FILES := \
+amqp_api.c \
+amqp_connection.c \
+amqp_framing.c \
+amqp_mem.c \
+amqp_socket.c \
+amqp_table.c \
+amqp_url.c \
+unix/socket.c
+
+
+LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/unix $(LOCAL_PATH)
+
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/unix $(LOCAL_PATH)
+LOCAL_CFLAGS := -std=c99
+                                 
+include $(BUILD_STATIC_LIBRARY)

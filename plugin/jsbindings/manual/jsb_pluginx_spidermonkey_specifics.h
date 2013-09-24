@@ -18,11 +18,11 @@
 namespace pluginx {
 
 #if PLUGINX_JSB_DEBUG
-#ifdef ANDROID
-    #define  LOG_TAG    "jsb_pluginx"
-    #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
+	#ifdef ANDROID
+    	#define  LOG_TAG    "jsb_pluginx"
+    	#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
     #else
-    #define  LOGD(...) printf(__VA_ARGS__)
+    	#define  LOGD(...) printf(__VA_ARGS__)
     #endif
 #else
     #define  LOGD(...)       do {} while (0)

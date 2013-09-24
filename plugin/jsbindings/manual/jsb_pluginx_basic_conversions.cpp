@@ -191,6 +191,7 @@ JSBool jsval_to_TProductInfo(JSContext *cx, jsval v, TProductInfo* ret)
 
         (*ret)[strWrapper.get()] = strWrapper2.get();
         LOGD("iterate object: key = %s, value = %s", strWrapper.get().c_str(), strWrapper2.get().c_str());
+        LOGD("aaa","bbb",strWrapper.get().c_str());
     }
 
     return JS_TRUE;

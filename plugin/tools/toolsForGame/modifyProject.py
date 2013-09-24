@@ -29,11 +29,11 @@ if nodeLinkRes != None:
     if linkNodes != None and len(linkNodes) > 0:
         for node in linkNodes:
             locNode = node.find('locationURI')
-            tempText = locNode.text
-            tempText = tempText.strip(' \n\r\t')
-            if tempText == targetPath:
-                haveTarget = True
-                break
+            # tempText = locNode.text
+            # tempText = tempText.strip(' \n\r\t')
+            # if tempText == targetPath:
+                # haveTarget = True
+                # break
     if not haveTarget:
         nodeLinkRes.append(getLinkElement())
         tree.write(projFile, 'UTF-8')

@@ -80,6 +80,8 @@ public class IAPAlipay implements InterfaceIAP {
 			PartnerConfig.RSA_PRIVATE = cpInfo.get("AlipayRsaPrivate");
 			PartnerConfig.RSA_ALIPAY_PUBLIC = cpInfo.get("AlipayPublic");
 			PartnerConfig.ALIPAY_PLUGIN_NAME = cpInfo.get("AlipayPluginName");
+			
+			LogD("cocos RSA_PRIVATE  " + PartnerConfig.RSA_PRIVATE);
 
 			strPayAccount = cpInfo.get("AlipayRoyPayAccount");
 			strReceiveAccount = cpInfo.get("AlipayRoyReceiveAccount");
@@ -241,6 +243,8 @@ public class IAPAlipay implements InterfaceIAP {
 			float price = Float.parseFloat(info.get("productPrice"));//IAPProducts.getProductPrice(productID);
 			String productName = info.get("productName");
 			String productDesc = info.get("productDesc");
+			String outTradeNo = info.get("outTradeNo");
+			strNotifyUrl = info.get("notifyUrl");
 			String royParam = "";
 			if (fPayPercent > 0 ) {
 				float royValue = fPayPercent * price;
@@ -250,7 +254,7 @@ public class IAPAlipay implements InterfaceIAP {
 
 			strRet = "partner=\"" + PartnerConfig.PARTNER + "\""
 						+ "&seller=\"" + PartnerConfig.SELLER + "\""
-						+ "&out_trade_no=\"" + getOutTradeNo() + "\""
+						+ "&out_trade_no=\"" + outTradeNo + "\""
 						+ "&subject=\"" + productName + "\""
 						+ "&body=\"" + productDesc + "\""
 						+ "&total_fee=\"" + price + "\""
