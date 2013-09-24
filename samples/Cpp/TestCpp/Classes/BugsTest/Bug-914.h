@@ -6,12 +6,12 @@
 class Bug914Layer : public BugsTestBaseLayer
 {
 public:
-    static CCScene* scene();
+    static Scene* scene();
     virtual bool init();
 
-    void ccTouchesMoved(CCSet *touches, CCEvent * event);
-    void ccTouchesBegan(CCSet *touches, CCEvent * event);
-    void restart(CCObject* sender);
+    virtual void onTouchesMoved(const std::vector<Touch*>& touches, Event * event) override;
+    virtual void onTouchesBegan(const std::vector<Touch*>& touches, Event * event) override;
+    void restart(Object* sender);
 
     CREATE_FUNC(Bug914Layer);
 };

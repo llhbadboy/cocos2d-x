@@ -21,16 +21,22 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
+
+"[WebSocket module] is based in part on the work of the libwebsockets  project
+(http://libwebsockets.org)"
+
  ****************************************************************************/
 
 #ifndef __CC_WEBSOCKET_H__
 #define __CC_WEBSOCKET_H__
 
 #include "ExtensionMacros.h"
-#include <pthread.h>
 #include "cocos2d.h"
-#include "libwebsockets.h"
 #include <list>
+
+struct libwebsocket;
+struct libwebsocket_context;
+struct libwebsocket_protocols;
 
 NS_CC_EXT_BEGIN
 
@@ -40,7 +46,14 @@ class WsMessage;
 class WebSocket
 {
 public:
+    /**
+     * @js ctor
+     */
     WebSocket();
+    /**
+     * @js NA
+     * @lua NA
+     */
     virtual ~WebSocket();
     
     /**
@@ -57,11 +70,22 @@ public:
     /**
      *  @brief Errors in websocket
      */
-    enum ErrorCode
+    enum class ErrorCode
     {
-        kErrorTimeout = 0,
-        kErrorConnectionFailure,
-        kErrorUnknown
+        TIME_OUT,
+        CONNECTION_FAILURE,
+        UNKNOWN,
+    };
+    
+    /**
+     *  Websocket state
+     */
+    enum class State
+    {
+        CONNECTING,
+        OPEN,
+        CLOSING,
+        CLOSED,
     };
 
     /**
@@ -103,17 +127,6 @@ public:
      *  @brief Closes the connection to server.
      */
     void close();
-
-    /**
-     *  Websocket state
-     */
-    enum State
-    {
-        kStateConnecting = 0,
-        kStateOpen,
-        kStateClosing,
-        kStateClosed
-    };
     
     /**
      *  @brief Gets current state of connection.
@@ -130,7 +143,7 @@ private:
     friend class WebSocketCallbackWrapper;
     int onSocketCallback(struct libwebsocket_context *ctx,
                          struct libwebsocket *wsi,
-                         enum libwebsocket_callback_reasons reason,
+                         int reason,
                          void *user, void *in, size_t len);
     
 private:
@@ -146,7 +159,7 @@ private:
     struct libwebsocket_context* _wsContext;
     Delegate* _delegate;
     int _SSLConnection;
-    libwebsocket_protocols* _wsProtocols;
+    struct libwebsocket_protocols* _wsProtocols;
 };
 
 NS_CC_EXT_END

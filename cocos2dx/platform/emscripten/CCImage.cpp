@@ -57,7 +57,7 @@ public:
     BitmapDC()
     {
 		iInterval = szFont_kenning;
-		m_pData = NULL;
+		_data = NULL;
 		reset();
     }
     
@@ -89,33 +89,58 @@ public:
 	}
 
 	bool divideString(TTF_Font *face, const char* sText, int iMaxWidth, int iMaxHeight) {
-        const char* pText = sText;
-
-        //init stringstream
         std::stringstream ss;
         int w, h;
 
-        while (*pText != '\0') {
-            if (*pText == '\n') {
-                buildLine(ss, face);
+        // if there is no maximum width specified, just slam the whole input
+        // string into a single line, thereby avoiding many expensive calls to
+        // compute font metrics.
+        if(iMaxWidth == 0)
+        {
+            std::string text = sText;
+            ss << text;
+            buildLine(ss, face);
+            return true;
+        }
 
-                pText++;
+        std::vector<std::string> words;
+        std::string text = sText;
+        std::istringstream iss(text);
+        copy(std::istream_iterator<std::string>(iss),
+             std::istream_iterator<std::string>(),
+             std::back_inserter< vector<string> >(words));
+
+        for(std::vector<string>::iterator i = words.begin(); i != words.end(); ++i)
+        {
+            // Specially handle the case where a single word exceeds the
+            // available width.
+            TTF_SizeText(face, i->c_str(), &w, &h);
+            if(w > iMaxWidth)
+            {
+                buildLine(ss, face);
+                for(std::string::iterator c = i->begin(); c != i->end(); ++c)
+                {
+                    ss << *c;
+                    TTF_SizeText(face, ss.str().c_str(), &w, &h);
+                    if(w > iMaxWidth)
+                    {
+                        buildLine(ss, face);
+                    }
+                }
                 continue;
             }
-     
-            //check its width
-            //divide it when exceeding
-            std::string s = ss.str();
-            s.push_back(*pText);
-            TTF_SizeText(face, s.c_str(), &w, &h);
 
-            if (iMaxWidth > 0 && (w > iMaxWidth)) {
+            std::string tmp = ss.str() + std::string(" ") + *i;
+            TTF_SizeText(face, tmp.c_str(), &w, &h);
+            if(w > iMaxWidth)
+            {
                 buildLine(ss, face);
+                ss << *i;
             }
-
-            ss << *pText;
-            pText++;
-
+            else
+            {
+                ss << " " << *i;
+            }
         }
 
         buildLine(ss, face);
@@ -130,55 +155,56 @@ public:
 	 * while -1 means fail
 	 *
 	 */
-	int computeLineStart(TTF_Font *face, CCImage::ETextAlign eAlignMask, char cText,
-                         int iLineIndex) {
-        return 0;
-        /*
-		int iRet;
-		int iError = FT_Load_Glyph(face, FT_Get_Char_Index(face, cText),
-                                   FT_LOAD_DEFAULT);
-		if (iError) {
-			return -1;
-		}
-        
-		if (eAlignMask == CCImage::kAlignCenter) {
-			iRet = (iMaxLineWidth - vLines[iLineIndex].iLineWidth) / 2
-			- RSHIFT6(face->glyph->metrics.horiBearingX );
-            
-		} else if (eAlignMask == CCImage::kAlignRight) {
-			iRet = (iMaxLineWidth - vLines[iLineIndex].iLineWidth)
-			- RSHIFT6(face->glyph->metrics.horiBearingX );
-		} else {
-			// left or other situation
-			iRet = -RSHIFT6(face->glyph->metrics.horiBearingX );
-		}
-		return iRet;
-        */
-	}
-		
-	int computeLineStartY( TTF_Font *face, CCImage::ETextAlign eAlignMask, int txtHeight, int borderHeight ){
-        return 0;
-        /*
-		int iRet;
-		if (eAlignMask == CCImage::kAlignCenter || eAlignMask == CCImage::kAlignLeft ||
-			eAlignMask == CCImage::kAlignRight ) {
-			//vertical center
-			iRet = (borderHeight - txtHeight)/2 + RSHIFT6(face->size->metrics.ascender);
+    int computeLineStart(Image::TextAlign eAlignMask, int lineWidth, int maxLineWidth)
+    {
+        int result = 0;
+        if( eAlignMask == Image::TextAlign::CENTER ||
+            eAlignMask == Image::TextAlign::TOP ||
+            eAlignMask == Image::TextAlign::BOTTOM)
+        {
+            result = (maxLineWidth / 2) - (lineWidth / 2);
+        }
+        else if(eAlignMask == Image::TextAlign::RIGHT ||
+                eAlignMask == Image::TextAlign::TOP_RIGHT ||
+                eAlignMask == Image::TextAlign::BOTTOM_RIGHT)
+        {
+            result = maxLineWidth - lineWidth;
+        }
+        // In all other cases (left alignment, most likely), return 0.
 
-		} else if (eAlignMask == CCImage::kAlignBottomRight || 
-				   eAlignMask == CCImage::kAlignBottom || 
-				   eAlignMask == CCImage::kAlignBottomLeft ) {
-			//vertical bottom
-			iRet = borderHeight - txtHeight + RSHIFT6(face->size->metrics.ascender);
-		} else {
-			// left or other situation
-			iRet = RSHIFT6(face->size->metrics.ascender);
-		}
-		return iRet;
-        */
-	}
-    
-	bool getBitmap(const char *text, int nWidth, int nHeight, CCImage::ETextAlign eAlignMask, const char * pFontName, float fontSize) {
+        // Attempt to ensure that we don't produce any completely invalid reslts.
+        if(result < 0)
+        {
+            result = 0;
+        }
+        return result;
+    }
+
+    int computeLineStartY(Image::TextAlign eAlignMask, int lineHeight, int maxLineHeight)
+    {
+        int result = 0;
+        if( eAlignMask == Image::TextAlign::CENTER ||
+            eAlignMask == Image::TextAlign::RIGHT ||
+            eAlignMask == Image::TextAlign::LEFT)
+        {
+            result = (maxLineHeight / 2) - (lineHeight / 2);
+        }
+        else if(eAlignMask == Image::TextAlign::BOTTOM ||
+                eAlignMask == Image::TextAlign::BOTTOM_RIGHT ||
+                eAlignMask == Image::TextAlign::BOTTOM_LEFT)
+        {
+            result = maxLineHeight - lineHeight;
+        }
+        // In all other cases (top alignment, most likely), return 0;
+
+        if(result < 0)
+        {
+            result = 0;
+        }
+        return result;
+    }
+
+	bool getBitmap(const char *text, int nWidth, int nHeight, Image::TextAlign eAlignMask, const char * pFontName, float fontSize) {
 		const char* pText = text;
         int pxSize = (int)fontSize;
 
@@ -200,8 +226,8 @@ public:
         iMaxLineHeight = MAX(iMaxLineHeight, nHeight);
 
         uint bitmapSize = iMaxLineWidth * iMaxLineHeight * 4;
-        m_pData = new unsigned char[bitmapSize];
-        memset(m_pData, 0, bitmapSize);
+        _data = new unsigned char[bitmapSize];
+        memset(_data, 0, bitmapSize);
 
         if(!strlen(text))
         {
@@ -213,7 +239,10 @@ public:
         // pass back SDL's buffer then, though would need additional logic to
         // call SDL_FreeSurface appropriately.
 
-        // FIXME: handle alignment, etc.
+        // Y offset for vertical alignment remains constant throughout, as it
+        // is the entire block of text that must be vertically aligned.
+        int yOffset = computeLineStartY(eAlignMask, vLines.size() * pxSize, iMaxLineHeight);
+
         for (size_t l = 0; l < vLines.size(); l++) {
             pText = vLines[l].sLineStr.c_str();
             if(!strlen(pText))
@@ -229,25 +258,32 @@ public:
                 return false;
             }
 
+            // The lock/unlock pair is required since Emscripten's SDL
+            // implementation copies pixel data from its off-screen canvas to
+            // the pixels array in the unlock operation. Without this, we would
+            // be reading uninitialized memory.
             SDL_LockSurface(tSurf);
             SDL_UnlockSurface(tSurf);
 
             // We treat pixels as 32-bit words, since both source and target
             // are rendered as such.
             int *pixels = (int*)tSurf->pixels;
-            int *out = (int*)m_pData;
+            int *out = (int*)_data;
+
+            // Compute offset to produce horizontal alignment.
+            int xOffset = computeLineStart(eAlignMask, tSurf->w, iMaxLineWidth);
 
             // (i, j) should be treated as (x, y) coordinates in the source
             // bitmap. This loop maps those locations to the target bitmap.
             // Need to ensure that those values do not exceed the allocated
             // memory.
             int minWidth = MIN(tSurf->w, iMaxLineWidth);
-            for(int i = 0; i < tSurf->h && (i + l * pxSize) < iMaxLineHeight; ++i)
+            for(int j = 0; j < tSurf->h && (j + l * pxSize) < iMaxLineHeight; ++j)
             {
-                for(int j = 0; j < minWidth; ++j)
+                for(int i = 0; i < minWidth; ++i)
                 {
-                    int sourceOffset = i * tSurf->w + j;
-                    int targetOffset = (l * pxSize + i) * iMaxLineWidth + j;
+                    int sourceOffset = j * tSurf->w + i;
+                    int targetOffset = (l * pxSize + j + yOffset) * iMaxLineWidth + i + xOffset;
 
                     // HTML5 canvas is non-pre-alpha-multiplied, so alpha-multiply here.
                     unsigned char *p = (unsigned char*) &pixels[sourceOffset];
@@ -257,7 +293,7 @@ public:
             SDL_FreeSurface(tSurf);
         }
 
-        //clear all lines
+        // clear all lines
         vLines.clear();
 
         TTF_CloseFont(face);
@@ -266,7 +302,7 @@ public:
     }
 
 public:
-	unsigned char *m_pData;
+	unsigned char *_data;
 	int libError;
 	vector<TextLine> vLines;
 	int iInterval;
@@ -280,11 +316,11 @@ static BitmapDC& sharedBitmapDC()
     return s_BmpDC;
 }
 
-bool CCImage::initWithString(
+bool Image::initWithString(
                              const char *    pText,
                              int             nWidth/* = 0*/,
                              int             nHeight/* = 0*/,
-                             ETextAlign      eAlignMask/* = kAlignCenter*/,
+                             TextAlign       eAlignMask/* = kAlignCenter*/,
                              const char *    pFontName/* = nil*/,
                              int             nSize/* = 0*/)
 {
@@ -300,15 +336,15 @@ bool CCImage::initWithString(
 
         CC_BREAK_IF(! dc.getBitmap(pText, nWidth, nHeight, eAlignMask, fullFontName.c_str(), nSize));
         
-        // assign the dc.m_pData to m_pData in order to save time
-        m_pData = dc.m_pData;
-        CC_BREAK_IF(! m_pData);
+        // assign the dc._data to _data in order to save time
+        _data = dc._data;
+        CC_BREAK_IF(! _data);
         
-        m_nWidth = (short)dc.iMaxLineWidth;
-        m_nHeight = (short)dc.iMaxLineHeight;
-        m_bHasAlpha = true;
-        m_bPreMulti = true;
-        m_nBitsPerComponent = 8;
+        _width = (short)dc.iMaxLineWidth;
+        _height = (short)dc.iMaxLineHeight;
+        _preMulti = true;
+        _renderFormat = Texture2D::PixelFormat::RGBA8888;
+        _dataLen = _width * _height * 4;
         
         bRet = true;
         

@@ -2,41 +2,43 @@
 
 KeypadTest::KeypadTest()
 {
-    CCSize s = CCDirector::sharedDirector()->getWinSize();
-    CCLabelTTF* label = CCLabelTTF::create("Keypad Test", "Arial", 28);
+    auto s = Director::getInstance()->getWinSize();
+    auto label = LabelTTF::create("Keypad Test", "Arial", 28);
     addChild(label, 0);
-    label->setPosition( ccp(s.width/2, s.height-50) );
+    label->setPosition( Point(s.width/2, s.height-50) );
 
-    setKeypadEnabled(true);
+    setKeyboardEnabled(true);
 
     // create a label to display the tip string
-    m_pLabel = CCLabelTTF::create("Please press any key...", "Arial", 22);
-    m_pLabel->setPosition(ccp(s.width / 2, s.height / 2));
-    addChild(m_pLabel, 0);
+    _label = LabelTTF::create("Please press any key...", "Arial", 22);
+    _label->setPosition(Point(s.width / 2, s.height / 2));
+    addChild(_label, 0);
     
-    m_pLabel->retain();
+    _label->retain();
 }
 
 KeypadTest::~KeypadTest()
 {
-    m_pLabel->release();
+    _label->release();
 }
 
-void KeypadTest::keyBackClicked()
+void KeypadTest::onKeyReleased(EventKeyboard::KeyCode keycode, Event* event)
 {
-    m_pLabel->setString("BACK clicked!");
-}
-
-void KeypadTest::keyMenuClicked()
-{
-    m_pLabel->setString("MENU clicked!");
+    if (keycode == EventKeyboard::KeyCode::KEY_BACKSPACE)
+    {
+        _label->setString("BACK clicked!");
+    }
+    else if (keycode == EventKeyboard::KeyCode::KEY_MENU)
+    {
+        _label->setString("MENU clicked!");
+    }
 }
 
 void KeypadTestScene::runThisTest()
 {
-    CCLayer* pLayer = new KeypadTest();
-    addChild(pLayer);
+    auto layer = new KeypadTest();
+    addChild(layer);
 
-    CCDirector::sharedDirector()->replaceScene(this);
-    pLayer->release();
+    Director::getInstance()->replaceScene(this);
+    layer->release();
 }

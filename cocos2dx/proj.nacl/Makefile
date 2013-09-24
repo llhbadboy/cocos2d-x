@@ -2,12 +2,7 @@ COCOS_ROOT = ../..
 COCOS_SRC_ROOT = $(COCOS_ROOT)/cocos2dx
 
 INCLUDES = \
-	-I$(COCOS_ROOT)/extensions \
-	-I$(COCOS_ROOT)/extensions/CCBReader \
-	-I$(COCOS_ROOT)/extensions/GUI/CCControlExtension \
-	-I$(COCOS_ROOT)/external/chipmunk/include/chipmunk \
-	-I$(COCOS_ROOT)/extensions/network \
-	-I$(NACL_SDK_ROOT)/include \
+	-I$(NACL_SDK_ROOT)/include
 
 SOURCES = ../actions/CCAction.cpp \
 ../actions/CCActionCamera.cpp \
@@ -30,7 +25,6 @@ SOURCES = ../actions/CCAction.cpp \
 ../cocoa/CCNS.cpp \
 ../cocoa/CCObject.cpp \
 ../cocoa/CCSet.cpp \
-../cocoa/CCZone.cpp \
 ../cocoa/CCArray.cpp \
 ../cocoa/CCDictionary.cpp \
 ../cocoa/CCString.cpp \
@@ -40,8 +34,18 @@ SOURCES = ../actions/CCAction.cpp \
 ../draw_nodes/CCDrawNode.cpp \
 ../effects/CCGrabber.cpp \
 ../effects/CCGrid.cpp \
-../keypad_dispatcher/CCKeypadDelegate.cpp \
-../keypad_dispatcher/CCKeypadDispatcher.cpp \
+../event_dispatcher/CCEventAcceleration.cpp \
+../event_dispatcher/CCEventListenerAcceleration.cpp \
+../event_dispatcher/CCEvent.cpp \
+../event_dispatcher/CCEventDispatcher.cpp \
+../event_dispatcher/CCEventListener.cpp \
+../event_dispatcher/CCEventKeyboard.cpp \
+../event_dispatcher/CCEventListenerKeyboard.cpp \
+../event_dispatcher/CCTouch.cpp \
+../event_dispatcher/CCEventTouch.cpp \
+../event_dispatcher/CCEventListenerTouch.cpp \
+../event_dispatcher/CCEventCustom.cpp \
+../event_dispatcher/CCEventListenerCustom.cpp \
 ../label_nodes/CCLabelAtlas.cpp \
 ../label_nodes/CCLabelBMFont.cpp \
 ../label_nodes/CCLabelTTF.cpp \
@@ -62,7 +66,6 @@ SOURCES = ../actions/CCAction.cpp \
 ../particle_nodes/CCParticleBatchNode.cpp \
 ../platform/CCSAXParser.cpp \
 ../platform/CCThread.cpp \
-../platform/platform.cpp \
 ../platform/CCImageCommonWebp.cpp \
 ../platform/CCEGLViewProtocol.cpp \
 ../platform/CCFileUtils.cpp \
@@ -81,7 +84,6 @@ SOURCES = ../actions/CCAction.cpp \
 ../sprite_nodes/CCSpriteFrame.cpp \
 ../sprite_nodes/CCSpriteFrameCache.cpp \
 ../support/tinyxml2/tinyxml2.cpp \
-../support/CCPointExtension.cpp \
 ../support/CCProfiling.cpp \
 ../support/user_default/CCUserDefault.cpp \
 ../support/TransformUtils.cpp \
@@ -95,6 +97,8 @@ SOURCES = ../actions/CCAction.cpp \
 ../support/zip_support/ioapi.cpp \
 ../support/zip_support/unzip.cpp \
 ../support/data_support/ccCArray.cpp \
+../support/component/CCComponent.cpp \
+../support/component/CCComponentContainer.cpp \
 ../text_input_node/CCIMEDispatcher.cpp \
 ../text_input_node/CCTextFieldTTF.cpp \
 ../textures/CCTexture2D.cpp \
@@ -102,15 +106,13 @@ SOURCES = ../actions/CCAction.cpp \
 ../textures/CCTextureCache.cpp \
 ../textures/CCTextureETC.cpp \
 ../textures/CCTexturePVR.cpp \
+../textures/etc/etc1.cpp\
 ../tilemap_parallax_nodes/CCParallaxNode.cpp \
 ../tilemap_parallax_nodes/CCTMXLayer.cpp \
 ../tilemap_parallax_nodes/CCTMXObjectGroup.cpp \
 ../tilemap_parallax_nodes/CCTMXTiledMap.cpp \
 ../tilemap_parallax_nodes/CCTMXXMLParser.cpp \
 ../tilemap_parallax_nodes/CCTileMapAtlas.cpp \
-../touch_dispatcher/CCTouchDispatcher.cpp \
-../touch_dispatcher/CCTouchHandler.cpp \
-../touch_dispatcher/CCTouch.cpp \
 ../shaders/CCGLProgram.cpp \
 ../shaders/ccGLStateCache.cpp \
 ../shaders/CCShaderCache.cpp \
@@ -133,7 +135,9 @@ SOURCES = ../actions/CCAction.cpp \
 ../CCDirector.cpp \
 ../CCScheduler.cpp \
 ../ccFPSImages.c \
-../cocos2d.cpp
+../ccTypes.cpp \
+../cocos2d.cpp \
+../CCDeprecated.cpp
 
 include cocos2dx.mk
 
