@@ -9,11 +9,12 @@ public:
     virtual void runThisTest();
 };
 
-class MainLayer : public CCLayer
+class MainLayer : public Layer
 {
 public:
     MainLayer();
-    virtual void ccTouchesEnded(CCSet *pTouches, CCEvent *pEvent);
+    virtual bool onTouchBegan(Touch* touch, Event  *event) override;
+    virtual void onTouchEnded(Touch* touch, Event  *event) override;
 };
 
 #endif

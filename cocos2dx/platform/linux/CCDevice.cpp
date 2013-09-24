@@ -4,7 +4,7 @@
 
 NS_CC_BEGIN
 
-int CCDevice::getDPI()
+int Device::getDPI()
 {
 	static int dpi = -1;
 	if (dpi == -1)
@@ -26,6 +26,16 @@ int CCDevice::getDPI()
 	    //printf("dpi = %d\n", dpi);
 	}
 	return dpi;
+}
+
+void Device::setAccelerometerEnabled(bool isEnabled)
+{
+
+}
+
+void Device::setAccelerometerInterval(float interval)
+{
+
 }
 
 NS_CC_END

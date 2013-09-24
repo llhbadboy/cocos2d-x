@@ -4,17 +4,16 @@
 #include "cocos2d.h"
 #include "../testBasic.h"
 
-class KeypadTest : public CCLayer
+class KeypadTest : public Layer
 {
 public:
     KeypadTest();
     ~KeypadTest();
 
-    virtual void keyBackClicked();
-    virtual void keyMenuClicked();
+    virtual void onKeyReleased(EventKeyboard::KeyCode keycode, Event* event) override;
 
 private:
-    CCLabelTTF*            m_pLabel;
+    LabelTTF*            _label;
 };
 
 class KeypadTestScene : public TestScene

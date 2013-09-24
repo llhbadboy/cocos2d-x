@@ -29,7 +29,7 @@ THE SOFTWARE.
 NS_CC_BEGIN
 using namespace Tizen::System;
 
-int CCDevice::getDPI()
+int Device::getDPI()
 {
     result r = E_SUCCESS;
     int dpi = -1;
@@ -38,6 +38,16 @@ int CCDevice::getDPI()
     TryLog(!IsFailed(r), "[%s] Cannot get the current dpi", GetErrorMessage(r));
 
     return dpi;
+}
+
+void Device::setAccelerometerEnabled(bool isEnabled)
+{
+
+}
+
+void Device::setAccelerometerInterval(float interval)
+{
+
 }
 
 NS_CC_END

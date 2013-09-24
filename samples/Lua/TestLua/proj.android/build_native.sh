@@ -49,6 +49,21 @@ echo "NDK_ROOT not defined. Please define NDK_ROOT in your environment or in loc
 exit 1
 fi
 
+# For compatibility of android-ndk-r9, 4.7 was removed from r9
+if [ -d "${NDK_ROOT}/toolchains/arm-linux-androideabi-4.7" ]; then
+    export NDK_TOOLCHAIN_VERSION=4.7
+    echo "The Selected NDK toolchain version was 4.7 !"
+else
+    if [ -d "${NDK_ROOT}/toolchains/arm-linux-androideabi-4.8" ]; then
+        export NDK_TOOLCHAIN_VERSION=4.8
+        echo "The Selected NDK toolchain version was 4.8 !"
+    else
+        echo "Couldn't find the gcc toolchain."
+        exit 1
+    fi
+fi
+
+
 if [ -z "${COCOS2DX_ROOT+aaa}" ]; then
 # ... if COCOS2DX_ROOT is not set
 # ... find current working directory
@@ -88,6 +103,18 @@ done
 
 # copy luaScript
 for file in "$APP_ROOT"/Resources/*
+do
+if [ -d "$file" ]; then
+    cp -rf "$file" "$APP_ANDROID_ROOT"/assets
+fi
+
+if [ -f "$file" ]; then
+    cp "$file" "$APP_ANDROID_ROOT"/assets
+fi
+done
+
+# copy common luaScript
+for file in "$APP_ROOT"/../../../scripting/lua/script/*
 do
 if [ -d "$file" ]; then
     cp -rf "$file" "$APP_ANDROID_ROOT"/assets
