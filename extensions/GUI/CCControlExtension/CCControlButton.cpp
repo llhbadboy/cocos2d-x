@@ -32,6 +32,7 @@
 #include "label_nodes/CCLabelBMFont.h"
 #include "actions/CCAction.h"
 #include "actions/CCActionInterval.h"
+#include "SimpleAudioEngine.h"
 
 using namespace std;
 
@@ -649,6 +650,9 @@ bool CCControlButton::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
     m_isPushed = true;
     this->setHighlighted(true);
     sendActionsForControlEvents(CCControlEventTouchDown);
+    
+    CocosDenshion::SimpleAudioEngine::sharedEngine()->playEffect("res/sound/sound_24.ogg");
+    
     return true;
 }
 
