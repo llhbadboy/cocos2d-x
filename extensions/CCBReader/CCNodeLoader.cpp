@@ -784,10 +784,13 @@ BlockData * CCNodeLoader::parsePropTypeBlock(CCNode * pNode, CCNode * pParent, C
             if(selectorTarget == kCCBTargetTypeDocumentRoot) {
                 pCCBReader->addDocumentCallbackNode(pNode);
                 pCCBReader->addDocumentCallbackName(selectorName);
-                
+                // Since there isn't a Control::EventType::NONE, add a TOUCH_DOWN type as a placeholder.
+                pCCBReader->addDocumentCallbackControlEvents(CCControlEventTouchDown);
             } else {
                 pCCBReader->addOwnerCallbackNode(pNode);
                 pCCBReader->addOwnerCallbackName(selectorName);
+                // Since there isn't a Control::EventType::NONE, add a TOUCH_DOWN type as a placeholder.
+                pCCBReader->addOwnerCallbackControlEvents(CCControlEventTouchDown);
             }
         }
     }
@@ -847,10 +850,11 @@ BlockCCControlData * CCNodeLoader::parsePropTypeBlockCCControl(CCNode * pNode, C
             if(selectorTarget == kCCBTargetTypeDocumentRoot) {
                 pCCBReader->addDocumentCallbackNode(pNode);
                 pCCBReader->addDocumentCallbackName(selectorName);
-                
+                pCCBReader->addDocumentCallbackControlEvents(controlEvents);
             } else {
                 pCCBReader->addOwnerCallbackNode(pNode);
                 pCCBReader->addOwnerCallbackName(selectorName);
+                pCCBReader->addOwnerCallbackControlEvents(controlEvents);
             }
         }
     }
@@ -905,6 +909,36 @@ CCNode * CCNodeLoader::parsePropTypeCCBFile(CCNode * pNode, CCNode * pParent, CC
         ccbReader->getAnimationManager()->runAnimationsForSequenceIdTweenDuration(ccbReader->getAnimationManager()->getAutoPlaySequenceId(), 0);
     }
     
+    if (ccbReader->isJSControlled() && pCCBReader->isJSControlled() && NULL == ccbReader->mOwner)
+    {
+        //set variables and callback to owner
+        //set callback
+        CCArray *ownerCallbackNames = ccbReader->getOwnerCallbackNames();
+        CCArray *ownerCallbackNodes = ccbReader->getOwnerCallbackNodes();
+        if (NULL != ownerCallbackNames && ownerCallbackNames->count() > 0 &&
+            NULL != ownerCallbackNodes && ownerCallbackNodes->count() > 0)
+        {
+            assert(ownerCallbackNames->count() == ownerCallbackNodes->count());
+            int nCount = ownerCallbackNames->count();
+            for (int i = 0 ; i < nCount; i++) {
+                pCCBReader->addOwnerCallbackName((dynamic_cast<CCString*>(ownerCallbackNames->objectAtIndex(i)))->getCString());
+                pCCBReader->addOwnerCallbackNode(dynamic_cast<CCNode*>(ownerCallbackNodes->objectAtIndex(i)) );
+            }
+        }
+        //set variables
+        CCArray *ownerOutletNames = ccbReader->getOwnerOutletNames();
+        CCArray *ownerOutletNodes = ccbReader->getOwnerOutletNodes();
+        if (NULL != ownerOutletNames && ownerOutletNames->count() > 0 &&
+            NULL != ownerOutletNodes && ownerOutletNodes->count() > 0)
+        {
+            assert(ownerOutletNames->count() == ownerOutletNodes->count());
+            int nCount = ownerOutletNames->count();
+            for (int i = 0 ; i < nCount; i++) {
+                pCCBReader->addOwnerOutletName((static_cast<CCString*>(ownerOutletNames->objectAtIndex(i)))->getCString());
+                pCCBReader->addOwnerOutletNode(static_cast<CCNode*>(ownerOutletNodes->objectAtIndex(i)) );
+            }
+        }
+    }
     return ccbFileNode;
 }
 

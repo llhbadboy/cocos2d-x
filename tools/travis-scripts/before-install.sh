@@ -18,12 +18,16 @@ install_android_ndk()
     else
         HOST_NAME="linux"
     fi
-    echo "Download android-ndk-r8e-${HOST_NAME}-x86_64.tar.bz2 ..."
-    curl -O http://dl.google.com/android/ndk/android-ndk-r8e-${HOST_NAME}-x86_64.tar.bz2
-    echo "Decompress android-ndk-r8e-${HOST_NAME}-x86_64.tar.bz2 ..."
-    tar xjf android-ndk-r8e-${HOST_NAME}-x86_64.tar.bz2
+
+    NDK_VERSION="android-ndk-r9"
+    NDK_PACKAGE_NAME="${NDK_VERSION}-${HOST_NAME}-x86_64.tar.bz2"
+
+    echo "Download ${NDK_PACKAGE_NAME} ..."
+    curl -O http://dl.google.com/android/ndk/${NDK_PACKAGE_NAME}
+    echo "Decompress ${NDK_PACKAGE_NAME} ..."
+    tar xjf $NDK_PACKAGE_NAME
     # Rename ndk
-    mv android-ndk-r8e android-ndk
+    mv ${NDK_VERSION} android-ndk
 }
 
 install_llvm()
@@ -42,6 +46,22 @@ install_llvm()
     mv clang+llvm-3.1-x86_64-${HOST_NAME} clang+llvm-3.1
 }
 
+install_llvm_3_2()
+{
+    if [ "$PLATFORM"x = "ios"x ]; then
+        HOST_NAME="apple-darwin11"
+    else
+        HOST_NAME="linux-ubuntu-12.04"
+    fi
+    # Download llvm3.2
+    echo "Download clang+llvm-3.2-x86_64-${HOST_NAME}.tar.gz"
+    curl -O http://llvm.org/releases/3.2/clang+llvm-3.2-x86_64-${HOST_NAME}.tar.gz
+    echo "Decompress clang+llvm-3.2-x86_64-${HOST_NAME}.tar.gz ..."
+    tar xzf clang+llvm-3.2-x86_64-${HOST_NAME}.tar.gz
+    # Rename llvm
+    mv clang+llvm-3.2-x86_64-${HOST_NAME} clang+llvm-3.2
+}
+
 if [ "$GEN_JSB"x = "YES"x ]; then
     if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
         exit 0
@@ -51,6 +71,7 @@ if [ "$GEN_JSB"x = "YES"x ]; then
 fi
 
 if [ "$PLATFORM"x = "linux"x ]; then
+    sudo apt-get update
     bash $COCOS2DX_ROOT/install-deps-linux.sh
 fi
 
@@ -67,6 +88,10 @@ fi
 if [ "$PLATFORM"x = "android"x ]; then 
     install_android_ndk
     install_llvm
+fi
+
+if [ "$PLATFORM"x = "emscripten"x ]; then 
+    install_llvm_3_2
 fi
 
 if [ "$PLATFORM"x = "ios"x ]; then

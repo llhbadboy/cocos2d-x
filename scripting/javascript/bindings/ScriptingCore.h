@@ -102,7 +102,7 @@ public:
     bool executeFunctionWithObjectData(CCNode *self, const char *name, JSObject *obj);
     JSBool executeFunctionWithOwner(jsval owner, const char *name, uint32_t argc = 0, jsval* vp = NULL, jsval* retVal = NULL);
 
-    void executeJSFunctionWithThisObj(jsval thisObj, jsval callback, jsval *data);
+    void executeJSFunctionWithThisObj(jsval thisObj, jsval callback, uint32_t argc = 0, jsval* vp = NULL, jsval* retVal = NULL);
 
 	/**
 	 * will eval the specified string
@@ -231,7 +231,7 @@ JSBool jsval_to_ccfontdefinition( JSContext *cx, jsval vp, ccFontDefinition *out
 jsval int32_to_jsval( JSContext *cx, int32_t l);
 jsval uint32_to_jsval( JSContext *cx, uint32_t number );
 jsval long_long_to_jsval(JSContext* cx, long long v);
-jsval std_string_to_jsval(JSContext* cx, string& v);
+jsval std_string_to_jsval(JSContext* cx, const string& v);
 jsval c_string_to_jsval(JSContext* cx, const char* v, size_t length = -1);
 jsval ccpoint_to_jsval(JSContext* cx, CCPoint& v);
 jsval ccrect_to_jsval(JSContext* cx, CCRect& v);
@@ -313,4 +313,10 @@ private:
 JSBool jsb_set_reserved_slot(JSObject *obj, uint32_t idx, jsval value);
 JSBool jsb_get_reserved_slot(JSObject *obj, uint32_t idx, jsval& ret);
 
-#endif
+js_proxy_t* jsb_new_proxy(void* nativeObj, JSObject* jsObj);
+js_proxy_t* jsb_get_native_proxy(void* nativeObj);
+js_proxy_t* jsb_get_js_proxy(JSObject* jsObj);
+void jsb_remove_proxy(js_proxy_t* nativeProxy, js_proxy_t* jsProxy);
+
+
+#endif /* __SCRIPTING_CORE_H__ */

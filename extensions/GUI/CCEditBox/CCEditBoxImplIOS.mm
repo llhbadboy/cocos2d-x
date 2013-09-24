@@ -77,12 +77,12 @@ static const int CC_EDIT_BOX_PADDING = 5;
         textField_.backgroundColor = [UIColor clearColor];
         textField_.borderStyle = UITextBorderStyleNone;
         textField_.delegate = self;
-        textField_.returnKeyType = UIReturnKeyDefault;
+        textField_.hidden = true;
+		textField_.returnKeyType = UIReturnKeyDefault;
         [textField_ addTarget:self action:@selector(textChanged) forControlEvents:UIControlEventEditingChanged];
         self.editBox = editBox;
         
-        [[EAGLView sharedEGLView] addSubview:textField_];
-		textField_.hidden = YES;
+		
         
         return self;
     }while(0);
@@ -117,12 +117,14 @@ static const int CC_EDIT_BOX_PADDING = 5;
 
 -(void) openKeyboard
 {
+    [[EAGLView sharedEGLView] addSubview:textField_];
     [textField_ becomeFirstResponder];
 }
 
 -(void) closeKeyboard
 {
     [textField_ resignFirstResponder];
+    [textField_ removeFromSuperview];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)sender

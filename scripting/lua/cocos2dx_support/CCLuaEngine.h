@@ -40,7 +40,10 @@ extern "C" {
 
 NS_CC_BEGIN
 
-// Lua support for cocos2d-x
+/** Lua support for cocos2d-x
+ *  @js NA
+ *  @lua NA
+ */
 class CCLuaEngine : public CCScriptEngineProtocol
 {
 public:
@@ -76,6 +79,11 @@ public:
      @brief Remove Lua function reference
      */
     virtual void removeScriptHandler(int nHandler);
+    
+    /**
+     @brief Reallocate Lua function reference
+     */
+    virtual int reallocateScriptHandler(int nHandler);
     
     /**
      @brief Execute script code contained in the given string.

@@ -40,7 +40,7 @@ CCLayer* restartAtlasAction();
 
 static int sceneIdx = -1; 
 
-#define MAX_LAYER    28
+#define MAX_LAYER    29
 
 CCLayer* createAtlasLayer(int nIndex)
 {
@@ -76,6 +76,7 @@ CCLayer* createAtlasLayer(int nIndex)
         case 25: return new LabelTTFAlignment();
         case 26: return new LabelBMFontBounds();
         case 27: return new TTFFontShadowAndStroke();
+        case 28: return new LabelBMFontCrashTest();
     }
 
     return NULL;
@@ -1497,7 +1498,7 @@ TTFFontShadowAndStroke::TTFFontShadowAndStroke()
     addChild(layer, -10);
     
     CCSize s = CCDirector::sharedDirector()->getWinSize();
- 
+    
     ccColor3B tintColorRed      =  { 255, 0, 0   };
     ccColor3B tintColorYellow   =  { 255, 255, 0 };
     ccColor3B tintColorBlue     =  { 0, 0, 255   };
@@ -1505,9 +1506,6 @@ TTFFontShadowAndStroke::TTFFontShadowAndStroke()
     ccColor3B strokeShadowColor =  { 255, 0, 0   };
     
     CCSize shadowOffset(12.0, 12.0);
-    
-    // create the label shadow only
-    CCLabelTTF* fontShadow = new CCLabelTTF();
     
     ccFontDefinition shadowTextDef;
     shadowTextDef.m_fontSize = 20;
@@ -1519,17 +1517,16 @@ TTFFontShadowAndStroke::TTFFontShadowAndStroke()
     shadowTextDef.m_shadow.m_shadowBlur    = 1.0;
     shadowTextDef.m_fontFillColor   = tintColorRed;
     
-    fontShadow->initWithStringAndTextDefinition("Shadow Only Red Text", shadowTextDef);
+    // shadow only label
+    CCLabelTTF* fontShadow = CCLabelTTF::createWithFontDefinition("Shadow Only Red Text", shadowTextDef);
     
     // add label to the scene
     this->addChild(fontShadow);
     fontShadow->setPosition(ccp(s.width/2,s.height/4*2.5));
     
-
     
-    // create the label stroke only
-    CCLabelTTF* fontStroke = new CCLabelTTF();
-        
+    
+    // create the stroke only label
     ccFontDefinition strokeTextDef;
     strokeTextDef.m_fontSize = 20;
     strokeTextDef.m_fontName = std::string("Marker Felt");
@@ -1540,7 +1537,8 @@ TTFFontShadowAndStroke::TTFFontShadowAndStroke()
     
     strokeTextDef.m_fontFillColor   = tintColorYellow;
     
-    fontStroke->initWithStringAndTextDefinition("Stroke Only Yellow Text", strokeTextDef);
+    // stroke only label
+    CCLabelTTF* fontStroke = CCLabelTTF::createWithFontDefinition("Stroke Only Yellow Text", strokeTextDef);
     
     // add label to the scene
     this->addChild(fontStroke);
@@ -1549,8 +1547,6 @@ TTFFontShadowAndStroke::TTFFontShadowAndStroke()
     
     
     // create the label stroke and shadow
-    CCLabelTTF* fontStrokeAndShadow = new CCLabelTTF();
-
     ccFontDefinition strokeShaodwTextDef;
     strokeShaodwTextDef.m_fontSize = 20;
     strokeShaodwTextDef.m_fontName = std::string("Marker Felt");
@@ -1566,12 +1562,15 @@ TTFFontShadowAndStroke::TTFFontShadowAndStroke()
     
     
     strokeShaodwTextDef.m_fontFillColor   = tintColorBlue;
-
-    fontStrokeAndShadow->initWithStringAndTextDefinition("Stroke & Shadow Blue Text", strokeShaodwTextDef);
+    
+    // shadow + stroke label
+    CCLabelTTF* fontStrokeAndShadow = CCLabelTTF::createWithFontDefinition("Stroke & Shadow Blue Text", strokeShaodwTextDef);
     
     // add label to the scene
     this->addChild(fontStrokeAndShadow);
     fontStrokeAndShadow->setPosition(ccp(s.width/2,s.height/4*1.1));
+    
+
     
 }
 
@@ -1655,4 +1654,38 @@ void LabelBMFontBounds::draw()
     };
     ccDrawPoly(vertices, 4, true);
 }
+
+// LabelBMFontCrashTest
+void LabelBMFontCrashTest::onEnter()
+{
+    AtlasDemo::onEnter();
+    
+    CCSize winSize = CCDirector::sharedDirector()->getWinSize();
+    //Create a label and add it
+    CCLabelBMFont *label1 = new CCLabelBMFont();
+    label1->initWithString("test", "fonts/bitmapFontTest2.fnt");
+    this->addChild(label1);
+    // Visit will call draw where the function "ccGLBindVAO(m_uVAOname);" will be invoked.
+    label1->visit();
+    
+    // Remove this label
+    label1->removeFromParentAndCleanup(true);
+    label1->release();
+    
+    // Create a new label and add it (then crashes)
+    CCLabelBMFont *label2 = CCLabelBMFont::create("test 2", "fonts/bitmapFontTest.fnt");
+    label2->setPosition(ccp(winSize.width/2, winSize.height/2));
+    this->addChild(label2);
+}
+
+std::string LabelBMFontCrashTest::title()
+{
+    return "LabelBMFont Crash Test";
+}
+
+std::string LabelBMFontCrashTest::subtitle()
+{
+    return "Should not crash.";
+}
+
 
