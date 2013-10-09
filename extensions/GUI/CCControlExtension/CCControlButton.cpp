@@ -651,7 +651,7 @@ bool CCControlButton::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
     this->setHighlighted(true);
     sendActionsForControlEvents(CCControlEventTouchDown);
     
-    CocosDenshion::SimpleAudioEngine::sharedEngine()->playEffect("res/sound/sound_24.ogg");
+    CocosDenshion::SimpleAudioEngine::sharedEngine()->playEffect("res/sound/sound_24.mp3");
     
     return true;
 }
