@@ -383,7 +383,6 @@ void AMQPQueue::setConsumerTag(string consumer_tag) {
 }
 
 void AMQPQueue::sendConsumeCommand() {
-    printf("cocos2d: sendConsumeCommand\n");
 	amqp_basic_consume_ok_t *consume_ok;
 	amqp_bytes_t queueByte = amqp_cstring_bytes(name.c_str());
 
@@ -418,11 +417,6 @@ void AMQPQueue::sendConsumeCommand() {
 		s.arguments = amqp_empty_table;
 
 	amqp_rpc_reply_t res = amqp_simple_rpc(*cnn, channelNum, AMQP_BASIC_CONSUME_METHOD, replies, &s);
-
-
-    printf("cocos reply type is %d \n", res.reply_type);
-    printf("cocos reply id is %d \n", res.reply.id);
-    printf("cocos lib error is id=%d, str=%s \n", res.library_error, amqp_error_string(res.library_error));
     
 
 //	if ( res.reply_type == AMQP_RESPONSE_NONE || res.reply_type == AMQP_RESPONSE_LIBRARY_EXCEPTION || res.reply_type == AMQP_RESPONSE_SERVER_EXCEPTION) {
