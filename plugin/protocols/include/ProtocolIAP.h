@@ -39,6 +39,7 @@ typedef enum
     kPayFail,
     kPayCancel,
     kPayTimeOut,
+    kPayUnsupported,
 } PayResultCode;
 
 class PayResultListener
