@@ -129,7 +129,7 @@ static void* networkThread(void *data)
         CCHttpResponse *response = new CCHttpResponse(request);
         
         // request's refcount = 2 here, it's retained by HttpRespose constructor
-        request->release();
+//        request->release();
         // ok, refcount = 1 now, only HttpResponse hold it.
         
         int32_t responseCode = -1;
